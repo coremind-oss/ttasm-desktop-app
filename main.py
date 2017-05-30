@@ -1,5 +1,7 @@
 import sys
+
 from PyQt5.QtWidgets import QApplication
+
 from tray import SystemTrayIcon
 
 
