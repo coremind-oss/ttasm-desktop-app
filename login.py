@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFormLayout
+from PyQt5.QtWidgets import QFormLayout, QHBoxLayout
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QDesktopWidget
@@ -10,12 +10,17 @@ class LoginForm(QWidget):
     def __init__(self):
         super(LoginForm, self).__init__()
 
-        # Specify window properties of the window, we want it to behave like popup
-        self.setWindowFlags(QtCore.Qt.Popup |
-                            QtCore.Qt.WindowStaysOnTopHint)
+        # define fixed size
+        self.fixedWidth = 250
+        self.fixedHeight = 100
+
+        # no min, max, close button
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint |
+                            QtCore.Qt.CustomizeWindowHint |
+                            QtCore.Qt.WindowTitleHint)
 
         self.create_ui()
-        self.to_top_right()
+        self.move_to_primary_center()
 
 
     def create_ui(self):
@@ -38,25 +43,30 @@ class LoginForm(QWidget):
         formBox = QFormLayout()
         formBox.addRow(usernameLabel, username)
         formBox.addRow(passwordLabel, password)
-        formBox.addRow(submitButton, cancelButton)
+
+        pushBoxLayout = QHBoxLayout()
+        pushBoxLayout.addWidget(submitButton)
+        pushBoxLayout.addWidget(cancelButton)
+
+        formBox.addRow(pushBoxLayout)
 
         # Set layout for the Login Form (self)
         self.setLayout(formBox)
 
-        # Position form at the top right of the screen
+        # Disable resize
+        self.setFixedSize(self.fixedWidth, self.fixedHeight)
 
-
-    def to_top_right(self):
-        """Reposition popup to the top right corner"""
+    def move_to_primary_center(self):
+        """Reposition window to center of primary screen"""
 
         desktop = QDesktopWidget()
-        dx = desktop.availableGeometry().width()
-        dy = desktop.availableGeometry().height()
+        primaryScreenIndex = desktop.primaryScreen()
+        rectScreenPrimarty = desktop.screenGeometry(primaryScreenIndex)
 
-        wh = 70 #height
-        ww = 250 #width
+        # center in the middle of screen, considering window's own size
+        self.move(rectScreenPrimarty.center().x() - self.fixedWidth/2,
+                  rectScreenPrimarty.center().y() - self.fixedHeight/2)
 
-        self.setGeometry(dx-ww, 40, ww, wh)
 
     def submit(self):
         """Send data to server."""
