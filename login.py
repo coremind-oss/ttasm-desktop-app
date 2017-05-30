@@ -11,8 +11,7 @@ class LoginForm(QWidget):
         super(LoginForm, self).__init__()
 
         # Specify window properties of the window, we want it to behave like popup
-        self.setWindowFlags(QtCore.Qt.Popup |
-                            QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         self.create_ui()
         self.to_top_right()
