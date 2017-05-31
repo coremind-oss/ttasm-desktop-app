@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QTextEdit
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QSystemTrayIcon
@@ -91,20 +91,21 @@ class LoginForm(QWidget):
 
     def submit(self, parentTray, username, password):
         """Send data to server."""
-        #print (self.username.is)
-        print ('from submit method namespace', type(self.username))
         
-        if (self.username.text()=='' or self.password.text()==''):
-
-            msgBox=QMessageBox()
-            msgBox.setInformativeText("Fields must not be empty")
+        if not username or not password:
+            
+            msgBox = QMessageBox()
+            info_text = []
+            if not username:
+                info_text.append('Username cannot be empty!')
+            if not password:
+                info_text.append('Password cannot be empty!')
+            
+            joined_info_text = '\n'.join(info_text)
+            
+            msgBox.setInformativeText(joined_info_text)
             msgBox.setIcon(QMessageBox.Information)
             msgBox.setWindowTitle("Oops!")
-            msgBox.setMaximumWidth(800)
-            
-            #workaround for resizing msgBox
-            detailsBox=msgBox.findChild(QTextEdit)
-            print (type(detailsBox))
 
             msgBox.setStandardButtons(QMessageBox.Ok)
             msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
