@@ -22,8 +22,6 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         mainMenu = QMenu()
 
-        # Create sub menu with 2 actions
-        # When creating a sub menu, main menu must be passed as an argument to QMenu class
         subMenu = QMenu(mainMenu)
         subMenu.setTitle("Submenu")
         subButton_1 = subMenu.addAction("Action 1")
@@ -40,7 +38,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         exitButton = mainMenu.addAction("Exit")
         exitButton.triggered.connect(self.quit)
 
-        # Set the menu as context menu
         self.setContextMenu(mainMenu)
 
 
@@ -48,7 +45,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         """Authenticate via webserver."""
 
         # Keeping reference to LoginForm object so that window wouldn't close
-        self.loginForm = LoginForm()
+        self.loginForm = LoginForm(parentTray = self)
         self.loginForm.show()
 
 
