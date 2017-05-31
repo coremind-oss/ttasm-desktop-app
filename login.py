@@ -56,7 +56,9 @@ class LoginForm(QWidget):
         self.password.returnPressed.connect(lambda: self.submit(self.parentTray,
                                                            self.username.text(),
                                                            self.password.text()))
-
+        
+        self.username.returnPressed.connect(self.password.setFocus)
+        
         cancelButton = QPushButton("Cancel")
         cancelButton.clicked.connect(self.cancel)
 
