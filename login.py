@@ -2,13 +2,17 @@ from PyQt5.QtWidgets import QFormLayout, QHBoxLayout
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QDesktopWidget
+from PyQt5.QtWidgets import QSystemTrayIcon
 from PyQt5 import QtCore
 
 
 class LoginForm(QWidget):
 
-    def __init__(self):
+    def __init__(self, parentTray):
         super(LoginForm, self).__init__()
+
+        # keeping reference to parent
+        self.parentTray = parentTray
 
         # define fixed size
         self.fixedWidth = 250
@@ -35,7 +39,20 @@ class LoginForm(QWidget):
         password.setEchoMode(QLineEdit.Password)
 
         submitButton = QPushButton("Submit")
-        submitButton.clicked.connect(self.submit)
+
+        # Usign lambda because Qt doesn't allow for arguments to by passed to slots
+        # And we want to keep username and password as a private variables so we
+        # don't want to make them direct members of Class and call them with self
+        # directly inside self.submit() function
+        submitButton.clicked.connect(lambda: self.submit(self.parentTray,
+                                                         username.text(),
+                                                         password.text()))
+
+        # Enter pressed inside password line edit
+        password.returnPressed.connect(lambda: self.submit(self.parentTray,
+                                                           username.text(),
+                                                           password.text()))
+
         cancelButton = QPushButton("Cancel")
         cancelButton.clicked.connect(self.cancel)
 
@@ -68,9 +85,15 @@ class LoginForm(QWidget):
                   rectScreenPrimarty.center().y() - self.fixedHeight/2)
 
 
-    def submit(self):
+    def submit(self, parentTray, username, password):
         """Send data to server."""
-        pass
+
+        parentTray.showMessage("Can't do that yet",
+                               "Sorry {}, but login ins't implemented yet :(".format(username),
+                               QSystemTrayIcon.Critical,
+                               8000)
+
+        self.close()
 
 
     def cancel(self):
