@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFormLayout, QHBoxLayout
+from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QDesktopWidget
@@ -32,11 +32,15 @@ class LoginForm(QWidget):
 
         usernameLabel = QLabel("Username:")
         passwordLabel = QLabel("Password:")
-        username = QLineEdit()
-        password = QLineEdit()
+        self.username = QLineEdit()
+        self.password = QLineEdit()
+        print (self.username.whatsThis())
+        
 
+        self.username.setPlaceholderText("Enter your username")
+        self.password.setPlaceholderText("Enter your password")
         # Show asterisk in input instead of password chars
-        password.setEchoMode(QLineEdit.Password)
+        self.password.setEchoMode(QLineEdit.Password)
 
         submitButton = QPushButton("Submit")
 
@@ -45,21 +49,21 @@ class LoginForm(QWidget):
         # don't want to make them direct members of Class and call them with self
         # directly inside self.submit() function
         submitButton.clicked.connect(lambda: self.submit(self.parentTray,
-                                                         username.text(),
-                                                         password.text()))
+                                                         self.username.text(),
+                                                         self.password.text()))
 
         # Enter pressed inside password line edit
-        password.returnPressed.connect(lambda: self.submit(self.parentTray,
-                                                           username.text(),
-                                                           password.text()))
+        self.password.returnPressed.connect(lambda: self.submit(self.parentTray,
+                                                           self.username.text(),
+                                                           self.password.text()))
 
         cancelButton = QPushButton("Cancel")
         cancelButton.clicked.connect(self.cancel)
 
         #Design a form layout
         formBox = QFormLayout()
-        formBox.addRow(usernameLabel, username)
-        formBox.addRow(passwordLabel, password)
+        formBox.addRow(usernameLabel, self.username)
+        formBox.addRow(passwordLabel, self.password)
 
         pushBoxLayout = QHBoxLayout()
         pushBoxLayout.addWidget(submitButton)
@@ -87,13 +91,33 @@ class LoginForm(QWidget):
 
     def submit(self, parentTray, username, password):
         """Send data to server."""
+        
+        if not username or not password:
+            
+            msgBox = QMessageBox()
+            info_text = []
+            if not username:
+                info_text.append('Username cannot be empty!')
+            if not password:
+                info_text.append('Password cannot be empty!')
+            
+            joined_info_text = '\n'.join(info_text)
+            
+            msgBox.setInformativeText(joined_info_text)
+            msgBox.setIcon(QMessageBox.Information)
+            msgBox.setWindowTitle("Oops!")
 
-        parentTray.showMessage("Can't do that yet",
-                               "Sorry {}, but login ins't implemented yet :(".format(username),
-                               QSystemTrayIcon.Critical,
-                               8000)
+            msgBox.setStandardButtons(QMessageBox.Ok)
+            msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+            msgBox.exec()
 
-        self.close()
+        else:
+            parentTray.showMessage("Can't do that yet",
+                                   "Sorry {}, but login ins't implemented yet :(".format(username),
+                                   QSystemTrayIcon.Critical,
+                                   8000)
+    
+            self.close()
 
 
     def cancel(self):
