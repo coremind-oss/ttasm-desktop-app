@@ -50,6 +50,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         #except ValueError as e:
         except Exception as e:
             print (e)
+            
+        client.close()
 
     def create_ui(self):
         """Create user interface of Tray icon"""

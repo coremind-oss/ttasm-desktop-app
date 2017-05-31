@@ -2,11 +2,11 @@
 
 import socket
 
-print ("ttasm local tcp server")
+print ("Ttasm local tcp server")
 reception = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 hostName=socket.gethostname
 hostIp = socket.gethostbyname(socket.gethostname())
-receptionActiveConnections=0
+
 
 receptionPort = 1234
 
@@ -17,28 +17,36 @@ reception.listen(1)
 
 print ('Started listening on {}:{}'.format(hostIp, receptionPort))
 client, clientAddress=reception.accept()
-receptionActiveConnections+=1
+
+#make client socket reusable (doesn't actually work)
+client.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
 print ('Got connection from {}:{}'.format(clientAddress[0], clientAddress[1]))
 
-#send='Invalid data'
-#send=send.encode(encoding='utf_8', errors='strict')
-#client.send(send)
-
+#start listening loop
 while True:
     data = client.recv(1024)
     print ('Recieved {} from the client'.format(data.decode()))
     print ("Proccessing data")
     if (data.decode()=='Nice data'):
         client.send('Server recieved satisfying data'.encode())
-        print ('Proccessing done.\nReply sent')
+        print ('Nice data recieved.\nReply sent')
+        client.close()
+        break
     else:
          if (data.decode()=='disconnect'):
 
              client.send('Goodbye'.encode())
              print ('Exiting...')
              client.close()
-             receptionActiveConnections-=1
+
              break
          else:
-             client.send('Invalid data'.encode())
-             print ('Proccessing done, invalid data\nReply sent')
+             try:
+                 client.send('Your client sent invalid data'.encode())
+                 print ('Invalid data form {}:{} recieved, exiting...'.format(clientAddress[0], clientAddress[1]))
+                 client.close()
+                 
+                 break
+             except Exception as e:
+                print (e)
