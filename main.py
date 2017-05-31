@@ -5,6 +5,8 @@ from tray import SystemTrayIcon
 
 def main():
     app = QApplication([])
+    app.setQuitOnLastWindowClosed(False)
+    
     systemTrayIcon = SystemTrayIcon()
     systemTrayIcon.show()
     sys.exit(app.exec_())
