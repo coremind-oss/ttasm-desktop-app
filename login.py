@@ -11,10 +11,31 @@ class LoginForm(QWidget):
         super(LoginForm, self).__init__()
 
         # Specify window properties of the window, we want it to behave like popup
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.CustomizeWindowHint  | QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowTitleHint)
+
 
         self.create_ui()
-        self.to_top_right()
+        self.moveToCenter()
+        
+
+    def moveToCenter(self):
+        
+        # get widget size
+        loginSize=self.frameSize()
+        
+        # get center point of primary monitor
+        desktop = QDesktopWidget()
+        print ('Number of screens is', desktop.screenCount())
+        print ('Primary screen is', desktop.primaryScreen())
+
+        desktopRect=desktop.screenGeometry(desktop.primaryScreen())
+        centerPoint=desktopRect.center()
+        print (desktopRect)
+        print ('\n')
+        print (centerPoint.x(), centerPoint.y(), type (centerPoint))
+        
+        # move widget to center of primary monitor
+        self.move(centerPoint.x()-loginSize.width() * .5, centerPoint.y()-loginSize.height() * .5)
 
 
     def create_ui(self):
@@ -42,7 +63,7 @@ class LoginForm(QWidget):
         # Set layout for the Login Form (self)
         self.setLayout(formBox)
 
-        # Position form at the top right of the screen
+        self.setFixedSize(250,110)
 
 
     def to_top_right(self):
