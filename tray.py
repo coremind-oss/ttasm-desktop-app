@@ -1,4 +1,4 @@
-import sys
+import sys, socket
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu
@@ -15,7 +15,43 @@ class SystemTrayIcon(QSystemTrayIcon):
         super(SystemTrayIcon, self).__init__(icon)
 
         self.create_ui()
+        self.authenticate()
 
+    def authenticate(self):
+        client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #ip=socket.gethostbyname('www.ttasm.com')
+        serverIP='127.0.1.1'
+        port=1234
+        address=(serverIP, port)
+        print (address)
+        
+        try:
+            client.connect(('127.0.1.1', 1234))
+        #except ValueError as e:
+        except Exception as e:
+            print (e)
+        
+        #send="GET / HTTP/1.1\r\nHost: google.com\r\n\r\n"
+        #send='ghrjefhreuhfdjslafh'
+        
+        #send='disconnect'
+        send='Bad data'
+        #send='Nice data'
+        send=send.encode(encoding='utf_8', errors='strict')
+        try:
+            client.send(send)
+        #except ValueError as e:
+        except Exception as e:
+            print (e)
+            
+        try:
+            recieve=client.recv(1024)
+            print (recieve.decode())
+        #except ValueError as e:
+        except Exception as e:
+            print (e)
+            
+        client.close()
 
     def create_ui(self):
         """Create user interface of Tray icon"""
