@@ -15,10 +15,10 @@ hostAddress=(hostIp, receptionPort)
 reception.bind(hostAddress)
 reception.listen(1)
 
-print ('Started listening on', str(hostIp)+':'+str(receptionPort))
+print ('Started listening on {}:{}'.format(hostIp, receptionPort))
 client, clientAddress=reception.accept()
 receptionActiveConnections+=1
-print ('Got connection from', clientAddress[0],':',clientAddress[1])
+print ('Got connection from {}:{}'.format(clientAddress[0], clientAddress[1]))
 
 #send='Invalid data'
 #send=send.encode(encoding='utf_8', errors='strict')
@@ -26,10 +26,10 @@ print ('Got connection from', clientAddress[0],':',clientAddress[1])
 
 while True:
     data = client.recv(1024)
-    print ("Recieved", data,'from the client')
+    print ('Recieved {} from the client'.format(data.decode()))
     print ("Proccessing data")
-    if (data.decode()=='Hello server'):
-        client.send('Hello client'.encode())
+    if (data.decode()=='Nice data'):
+        client.send('Server recieved satisfying data'.encode())
         print ('Proccessing done.\nReply sent')
     else:
          if (data.decode()=='disconnect'):
