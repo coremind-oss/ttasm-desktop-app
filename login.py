@@ -47,6 +47,12 @@ class LoginForm(QWidget):
         submitButton.clicked.connect(lambda: self.submit(self.parentTray,
                                                          username.text(),
                                                          password.text()))
+
+        # Enter pressed inside password line edit
+        password.returnPressed.connect(lambda: self.submit(self.parentTray,
+                                                           username.text(),
+                                                           password.text()))
+
         cancelButton = QPushButton("Cancel")
         cancelButton.clicked.connect(self.cancel)
 
