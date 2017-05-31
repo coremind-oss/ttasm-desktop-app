@@ -95,19 +95,17 @@ class LoginForm(QWidget):
         print ('from submit method namespace', type(self.username))
         
         if (self.username.text()=='' or self.password.text()==''):
-            #self.hide()
+
             msgBox=QMessageBox()
             msgBox.setInformativeText("Fields must not be empty")
             msgBox.setIcon(QMessageBox.Information)
             msgBox.setWindowTitle("Oops!")
             msgBox.setMaximumWidth(800)
-            #msgBox.setFixedSize(400,200)
-            #msgBox.setGeometry(0,0,1000,1000)
+            
+            #workaround for resizing msgBox
             detailsBox=msgBox.findChild(QTextEdit)
-            #detailsBox.setFixedSize(400,200)
             print (type(detailsBox))
-            msgBox.find
-            print (msgBox.width())
+
             msgBox.setStandardButtons(QMessageBox.Ok)
             msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
             msgBox.exec()
