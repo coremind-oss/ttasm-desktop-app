@@ -1,15 +1,18 @@
-import sys, os
+import sys, subprocess
 from PyQt5.QtWidgets import QApplication
 from tray import SystemTrayIcon
 
-def alreadyRunnig(name):
-    os.system('ps -ef > /tmp/ttasm')
-    lines=open('/tmp/ttasm', 'r').read().split('\n')
+def alreadyRunnig(searchString):
+    #capture stdout of 'ps -ef' and return false if number of ttasm-desktop-app processes is > 1
+    print ('Checking for multiple instances...')
+    result= subprocess.Popen(["ps", "-ef"], stdout=subprocess.PIPE)
+    (out, err) = result.communicate()
+    lines=str(out.decode()).split('\n')
     count=0
     for line in lines:
-        if name in line:
+        if searchString in line:
             count+=1
-    print ('Found {} mentions of ttasm in ps'.format(count))
+    print ('Found {} mentions of ttasm in ps -ef'.format(count))
     if (count>1):
         return True
     else:
@@ -24,10 +27,9 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == '__main__': 
-    
-    pid = str(os.getpid())
-    print (pid)
+ 
     if (alreadyRunnig("ttasm-desktop-app")):
-        print ('Ttasm already running, exiting...')
+        print ('TTASM already running, exiting...')
     else:
+        print ('Loading')
         main()
