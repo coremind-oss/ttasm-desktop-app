@@ -50,22 +50,18 @@ import socket
 
 from pip._vendor.distlib.compat import raw_input
 
-
 socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   
- 
-host = socket.gethostname()
+host = socket.gethostname()# localhost
  
 port = 50000
-  
-  
+    
 socket_client.connect((host,port))
 print('connected on: ', host,port)
 
 print('Waiting to server reply:')
 while True:
 #     message = raw_input('Your message is: ')
-
 
     dictionary = {
       'username': 'dalibor',

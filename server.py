@@ -201,17 +201,24 @@ serv_socket.bind((ip,port))
 serv_socket.listen(5)
 
 def clientHandler():
-  while True:  
-    conn,addr = serv_socket.accept()
-    print('Server host client on ', addr[0], ' on port: ',addr[1])
-    data = conn.recv(2048)
-    if data:
-        data_decoded = data.decode()
-        print('Data recieved from client is :{}'.format(data_decoded))
+    while True:  
+        conn,addr = serv_socket.accept()
+        print('Server host client on ', addr[0], ' on port: ',addr[1])
+        data = []
+        while (True):
+            data_chunk = conn.recv(2)
+            if data_chunk:
+                data_decoded = data_chunk.decode()
+                data.append(data_decoded)
+                print(data)
+            else:
+                break
+        
+        total_data = ''.join(data)
+        print('Data recieved from client is :{}'.format(total_data))
         server_response = 'You succesfully passed your data'
         conn.send(server_response.encode('utf_8'))
-    else:
-        break
+
  
 for i in range(5):
     t = threading.Thread(target=clientHandler())
