@@ -44,29 +44,48 @@
 # client_socket.close()
 
 ########### example 05.06.2017.
-# 
+ 
+import json
 import socket
+
 from pip._vendor.distlib.compat import raw_input
- 
+
+
 socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  
  
-
 host = socket.gethostname()
-
+ 
 port = 50000
- 
- 
+  
+  
 socket_client.connect((host,port))
 print('connected on: ', host,port)
+
+print('Waiting to server reply:')
 while True:
-    message = raw_input('Your message is: ')
-    socket_client.send(message.encode('utf_8'))
-    print('Waiting to server reply:')
+#     message = raw_input('Your message is: ')
+
+
+    dictionary = {
+      'username': 'dalibor',
+      'password': 'some_password',
+      'token': 'dryucjq0eo8hfukzajcpsilaghcshizscplhzi',
+      'other_data': {
+        'bla':'bla',
+      }
+    }
+
+    json_string = json.JSONEncoder().encode(dictionary)
+    json_bytes = json_string.encode('utf_8')
+    socket_client.send(json_bytes)
+#     socket_client.send(message.encode('utf_8'))
+    
     reply_from_server = socket_client.recv(2048)
     print(reply_from_server.decode())
- 
+  
 socket_client.close()
-    
+      
 
 
 
