@@ -47,21 +47,21 @@
 ############### This actually work :D
 
 # import socket
-#   
+#    
 # server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#   
+#    
 # host = socket.gethostname()
-#   
+#    
 # ip = socket.gethostbyname(host)
-#   
+#    
 # port = 5000
-#   
+#    
 # address = (ip,port)
-#   
+#    
 # server_socket.bind(address)
-#   
+#    
 # server_socket.listen(1)
-#   
+#    
 # while True:
 #     print('----> Waiting communication from {}:{}'.format(ip,port))
 #     client,addr = server_socket.accept()
@@ -107,43 +107,76 @@
 
 ############## Multithreaded Threaded port scenner with workers
 
+# import socket
+# import threading
+# from queue import Queue
+# from multiprocessing.pool import worker
+#  
+# print_lock = threading.Lock()
+#  
+# target = 'localhost'
+#  
+# def port_scanner(port):
+#     try:
+#         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#         conn = sock.connect((target,port))
+#         with print_lock:
+#             print('Port: ',port,' is opened!!!')
+#         conn.close()
+#     except:
+#         pass
+#      
+#      
+# def threader():
+#     while True:
+#         worker = q.get()
+#         port_scanner(worker)
+#         q.task_done()
+#  
+# q = Queue()
+#  
+# for i in range(100):
+#     t = threading.Thread(target=threader)
+#     t.deamon = True
+#     t.start()
+#      
+# for worker in range(1,60000):
+#     q.put(worker)
+#      
+# q.join()
+
+
+########### example 05.06.2017.
+
 import socket
-import threading
-from queue import Queue
-from multiprocessing.pool import worker
+from pip._vendor.distlib.compat import raw_input
  
-print_lock = threading.Lock()
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
  
-target = 'localhost'
+# host = socket.gethostname()
+
+host = socket.gethostname()
  
-def port_scanner(port):
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        conn = sock.connect((target,port))
-        with print_lock:
-            print('Port: ',port,' is opened!!!')
-        conn.close()
-    except:
-        pass
-     
-     
-def threader():
-    while True:
-        worker = q.get()
-        port_scanner(worker)
-        q.task_done()
+ip = socket.gethostbyname(host)
  
-q = Queue()
+port = 50000
  
-for i in range(100):
-    t = threading.Thread(target=threader)
-    t.deamon = True
-    t.start()
-     
-for worker in range(1,60000):
-    q.put(worker)
-     
-q.join()
+server_socket.bind((ip, port))
+ 
+server_socket.listen(1)
+ 
+conn,addr = server_socket.accept()
+ 
+print("Connection recieved by ",addr[0], ' on port: ',addr[1])
+while True:
+    data = conn.recv(2048)# amount of data to recieve from client
+    if data:
+        print('Received data on :', data.decode())# data context from client
+        reply = raw_input('Enter data from server: ')
+        conn.sendall(reply.encode('utf_8'))# sending a raw input to client to allow client to enter credentials
+         
+ 
+conn.close()
     
  
         
