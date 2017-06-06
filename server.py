@@ -186,48 +186,73 @@
 
 import socket
 import threading
-
-
+ 
+ 
 serv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+ 
 host = socket.gethostname()
-
+ 
 ip = socket.gethostbyname(host)
-
-port = 50000
-
+ 
+port = 40000
+ 
 serv_socket.bind((ip,port))
-
+ 
 serv_socket.listen(5)
-
+ 
 def clientHandler():
     while True:  
         conn,addr = serv_socket.accept()
         print('Server host client on ', addr[0], ' on port: ',addr[1])
         data = []
         while (True):
-            data_chunk = conn.recv(2)
+            data_chunk = conn.recv(50)
             if data_chunk:
                 data_decoded = data_chunk.decode()
                 data.append(data_decoded)
-                print(data)
+                last_in_data_row = data[len(data)-1]
+#                 print(last_in_data_row)
             else:
                 break
-        
-        total_data = ''.join(data)
-        print('Data recieved from client is :{}'.format(total_data))
+         
+        total_data = last_in_data_row.join(data)
+        print('Data recieved from client is :', total_data)
         server_response = 'You succesfully passed your data'
         conn.send(server_response.encode('utf_8'))
-
  
+  
 for i in range(5):
     t = threading.Thread(target=clientHandler())
     t.start()
-
+ 
 serv_socket.close()
         
     
-        
-    
+########## 06.06.2017.       
+
+
+# import socket
+# 
+# 
+# port=50000
+# ip = socket.gethostbyname(socket.gethostname())
+# server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# server_socket.bind((ip, port))
+# server_socket.listen(5)
+# print("Server waiting for client...")
+# client_socket, address = server_socket.accept()
+# while (True):
+#     data = client_socket.recv(2)
+#     if (data):
+#         data_decoded = data.decode()
+#     else:
+#         break
+#         print('no data')
+# # print ('\n***** Recieved data ---->\n',data_decoded,'\n')
+# data_dictionary = eval(data_decoded)
+# print('*** USERNAME: ',data_dictionary['username'])
+# print('*** PASSWORD: ',data_dictionary['password'])
+# print('*** TOKEN: ',data_dictionary['token'])
+
 
 
