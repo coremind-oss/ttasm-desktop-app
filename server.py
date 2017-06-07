@@ -184,8 +184,10 @@
     
 #### Multithread example try 05.06.2017.
 
+import json
 import socket
-import threading
+from threading import Thread
+import traceback
 
 
 serv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -194,38 +196,55 @@ host = socket.gethostname()
 
 ip = socket.gethostbyname(host)
 
-port = 50000
+port = 50001
 
 serv_socket.bind((ip,port))
 
 serv_socket.listen(5)
 
-def clientHandler():
-    while True:  
-        conn,addr = serv_socket.accept()
-        print('Server host client on ', addr[0], ' on port: ',addr[1])
-        data = []
-        while (True):
-            data_chunk = conn.recv(2)
-            if data_chunk:
+def dedicatedConnection(alsdk, asdladjs):
+    # code
+    pass
+
+def clientHandler(thread_id):
+    try:
+        print('starting server thread #{}'.format(thread_id))
+        while True:
+            conn, addr = serv_socket.accept()
+            print('CONNECTION VARIABLE', conn)
+            print('Server host client on ', addr[0], ' on port: ',addr[1])
+            data = []
+            chunk_size = 5
+            while (True):
+                data_chunk = conn.recv(chunk_size)
                 data_decoded = data_chunk.decode()
                 data.append(data_decoded)
-                print(data)
-            else:
-                break
+                print('data chunk size', chunk_size)
+                print('actual chunk size', len(data_chunk))
+                print('LAST: {}'.format(data_chunk[-1]))
+                if data_chunk[-1] == '\x00':
+                    break
+            
+            total_data = ''.join(data)[:-1]
+            print('Data recieved from client is :{}'.format(total_data))
+            server_response = 'You succesfully passed your data'
+            conn.send(server_response.encode('utf_8'))
+            
+            rec_dict = json.JSONDecoder().decode(total_data)
+            print(type(rec_dict))
+            print(rec_dict)
+            
+    
+            serv_socket.close()
+#             break
+    except:
+        print('EXCEPTION COUGHT', traceback.format_exc())
+        if not serv_socket._closed:
+            serv_socket.close()
+        else:
+            print('already closed')
         
-        total_data = ''.join(data)
-        print('Data recieved from client is :{}'.format(total_data))
-        server_response = 'You succesfully passed your data'
-        conn.send(server_response.encode('utf_8'))
-
- 
-for i in range(5):
-    t = threading.Thread(target=clientHandler())
-    t.start()
-
-serv_socket.close()
-        
+clientHandler('THE ONLY ONE')
     
         
     

@@ -54,14 +54,14 @@ socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   
 host = socket.gethostname()# localhost
  
-port = 50000
+port = 50001
     
 socket_client.connect((host,port))
 print('connected on: ', host,port)
 
 print('Waiting to server reply:')
 while True:
-#     message = raw_input('Your message is: ')
+    message = raw_input('Your message is: ')
 
     dictionary = {
       'username': 'dalibor',
@@ -69,12 +69,15 @@ while True:
       'token': 'dryucjq0eo8hfukzajcpsilaghcshizscplhzi',
       'other_data': {
         'bla':'bla',
-      }
+      },
+      'custom_message': message,
     }
 
-    json_string = json.JSONEncoder().encode(dictionary)
+    json_string = json.JSONEncoder().encode(dictionary) + '\x00'
     json_bytes = json_string.encode('utf_8')
+    print('trying to execute socket_client.send(json_bytes)')
     socket_client.send(json_bytes)
+    print('success')
 #     socket_client.send(message.encode('utf_8'))
     
     reply_from_server = socket_client.recv(2048)
