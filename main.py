@@ -2,6 +2,7 @@ import sys, subprocess
 from PyQt5.QtWidgets import QApplication
 from tray import SystemTrayIcon
 
+
 def alreadyRunnig(searchString):
     #capture stdout of 'ps -ef' and return false if number of ttasm-desktop-app processes is > 1
     print ('Checking for multiple instances...')
