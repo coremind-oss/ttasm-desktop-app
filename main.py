@@ -56,7 +56,8 @@ def alreadyRunnigPU(inputStr):
                 return True
         else:
             print ("Found earlier instance with pid {} but it's not running".format(lastEntry))
-            os.remove('pid')
+            if os.path.isfile('pid'):
+                os.remove('pid') 
             with open("pid", "a") as pidFile:
                 newLine=str(currentProc.pid)+'\n'
                 pidFile.write(newLine)
