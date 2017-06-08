@@ -66,12 +66,34 @@ class LoginForm(QWidget):
         formBox = QFormLayout()
         formBox.addRow(usernameLabel, self.username)
         formBox.addRow(passwordLabel, self.password)
+        
+        # sign up label / link
+        signUpLabel = QLabel()
+        signUpLabel.setText('<a href="http://localhost:8000/sign-up/">Sign Up</a>')
+        signUpLabel.setOpenExternalLinks(True)
+        signUpLabel.show()
+        
+        # recover password link
+        recoverLabel = QLabel()
+        recoverLabel.setText('<a href="http://localhost:8000/recover-password/">Forgot your password?</a>')
+        recoverLabel.setOpenExternalLinks(True)
+        recoverLabel.show()
+        
+        # build sign up row
+        signUpRow = QHBoxLayout()
+        signUpRow.addWidget(signUpLabel)
+        signUpRow.addWidget(recoverLabel)
+        
+        #add sign up row
+        formBox.addRow(signUpRow)
+        
 
-        pushBoxLayout = QHBoxLayout()
-        pushBoxLayout.addWidget(submitButton)
-        pushBoxLayout.addWidget(cancelButton)
-
-        formBox.addRow(pushBoxLayout)
+        buttonRow = QHBoxLayout()
+        buttonRow.addWidget(submitButton)
+        buttonRow.addWidget(cancelButton)
+        
+        # add button row
+        formBox.addRow(buttonRow)
 
         # Set layout for the Login Form (self)
         self.setLayout(formBox)
