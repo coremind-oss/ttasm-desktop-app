@@ -4,6 +4,7 @@ import socket
 
 SERVER_IP = '127.0.1.1'
 SERVER_ACCESS_PORT = 50000
+CHUNK_SIZE = 5
 
 
 class ClientThread():
@@ -16,9 +17,17 @@ class ClientThread():
     def get_dedicated_port(self):
         self.sock.connect((self.server_ip, self.server_access_port))
         print("CONNECTED TO {}:{}".format(SERVER_IP, SERVER_ACCESS_PORT))
+        self.receive_message(self.sock)
 
-    def recieve_message(self, sock):
-        pass
+    def receive_message(self, sock):
+        data = []
+        while (True):
+            data_chunk = self.sock.recv(CHUNK_SIZE)
+            data_decoded = data_chunk.decode()
+            data.append(data_decoded)
+            if data_chunk[-1] == '\x00':
+                break
+        print(''.join(data))
 
 if __name__ == '__main__':
     clientThread = ClientThread(SERVER_IP, SERVER_ACCESS_PORT)

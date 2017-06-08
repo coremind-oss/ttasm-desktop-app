@@ -24,6 +24,9 @@ class SwitchWorker():
             while True:
                     conn, addr = s.accept()
                     print('CONNECTION VARIABLE', conn)
+                    dedicated_port = available_ports.pop()
+                    server_response = str(dedicated_port) + "\x00"
+                    conn.send(server_response.encode())
 
 
 
