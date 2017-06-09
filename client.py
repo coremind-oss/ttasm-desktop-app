@@ -1,7 +1,8 @@
 import json
 import socket
-import threading
 import sys
+import threading
+import traceback
 
 
 SERVER_IP = '127.0.1.1'
@@ -74,6 +75,7 @@ class Client():
             sock.connect((server_ip, dedicated_port))
         except:
             print('Unexpected connection error, shutting down')
+            print(traceback.format_exc())
             sock.close()
             sys.exit()
 

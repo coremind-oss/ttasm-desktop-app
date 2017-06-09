@@ -105,16 +105,15 @@ class SwitchWorker():
                 dedicated_port = available_ports.pop()
                 server_response = "{}{}".format(str(dedicated_port), '\x00')
 
-                # Send encoded dedicated port number to client
-                print('[SW] sending port num {} to {}:{}'.format(server_response, cli_ip, cli_port))
-                conn.send(server_response.encode())
-
                 # Create dedicated separate thread for comunication with client
                 print('[SW] preparing connection for port {}'.format(dedicated_port))
                 dedicatedConnection = DedicatedClientConnection(self.ip, dedicated_port)
                 dedicatedConnectionThread = threading.Thread(target=dedicatedConnection.run)
                 dedicatedConnectionThread.start()
 
+                # Send encoded dedicated port number to client
+                print('[SW] sending port num {} to {}:{}'.format(server_response, cli_ip, cli_port))
+                conn.send(server_response.encode())
 
 
 if __name__ == "__main__":
