@@ -1,7 +1,9 @@
 import json
+import sys
 import socket
 import threading
 from collections import deque
+
 
 ACCESS_PORT = 50000
 SERVER_HOST = socket.gethostname()
@@ -55,8 +57,15 @@ class DedicatedClientConnection():
             data.append(data_decoded)
 
             # null char is used to signal the end of message
-            if data_decoded[-1] == '\x00':
-                break
+
+            try:
+                if data_decoded[-1] == '\x00':
+                    break
+            except:
+                print('[THREAD PORT {}] user disconected, closing connection'.format(self.port))
+                connection.close()
+                available_ports.appendleft(self.port)
+                sys.exit()
 
         total_data = ''.join(data)[:-1]
         return (total_data)
