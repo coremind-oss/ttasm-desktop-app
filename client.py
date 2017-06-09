@@ -1,8 +1,9 @@
-import json
 import socket
 import sys
 import threading
 import traceback
+
+from utility import receive_message, send_message
 
 
 SERVER_IP = '127.0.1.1'
@@ -36,36 +37,10 @@ class Client():
         self.initial_sock.connect((self.server_ip, self.server_access_port))
         print("Conected to {}:{}".format(SERVER_IP, SERVER_ACCESS_PORT))
 
-        new_port = self.receive_message(self.initial_sock)
+        new_port = receive_message(self.initial_sock)
         print("Dedicated port is {}".format(new_port))
 
         return (new_port)
-
-
-    def receive_message(self, sock):
-        """ Collect arriving message on given socket, decode it and remove null char from end """
-
-        data = []
-        while (True):
-            data_chunk = sock.recv(CHUNK_SIZE)
-            data_decoded = data_chunk.decode()
-            data.append(data_decoded)
-
-            # null char is used to signal the end of message
-            if data_decoded[-1] == '\x00':
-                break
-
-        total_data = ''.join(data)[:-1]
-        return (total_data)
-
-
-    def send_message(self, sock, message):
-        """ Send decoded message through given socket with appended null char """
-
-        # null char is used to signal the end of message
-        message = message + '\x00'
-        sock.send(message.encode())
-
 
     def dedicated_conection(self, sock, server_ip, dedicated_port):
         """ Create new connection with dedicated port, and send user input to server """
@@ -84,8 +59,8 @@ class Client():
         # Send user input to server, and read whatever server sends back. FOREVER!
         while True:
             test_message = input('[DEDICATED PORT {}] enter your message: '.format(dedicated_port))
-            self.send_message(sock, test_message)
-            msg = self.receive_message(sock)
+            send_message(sock, test_message)
+            msg = receive_message(sock)
             print('[SERVER MESSAGE] here is your message reversed - <{}>'.format(msg))
 
 

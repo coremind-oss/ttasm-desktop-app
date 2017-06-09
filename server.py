@@ -1,8 +1,8 @@
-import json
-import sys
+from collections import deque
 import socket
 import threading
-from collections import deque
+
+from utility import receive_message, send_message
 
 
 ACCESS_PORT = 50000
@@ -39,46 +39,12 @@ class DedicatedClientConnection():
 
             # Expect message from client, then send reversed message back. FOREVER!
             while True:
-                client_msg = self.receive_message(conn)
+                client_msg = receive_message(conn)
                 print('[THREAD PORT {}] got message - <{}>'.format(self.port, client_msg))
 
                 reversed_msg = client_msg[::-1] # reverse message
-                self.send_message(conn, reversed_msg)
+                send_message(conn, reversed_msg)
                 print('[THREAD PORT {}] sent back reversed message - <{}>'.format(self.port, reversed_msg))
-
-
-    def receive_message(self, connection):
-        """ Collect arriving message on connection, decode it and remove null char from end """
-
-        data = []
-        while (True):
-            data_chunk = connection.recv(CHUNK_SIZE)
-            data_decoded = data_chunk.decode()
-            data.append(data_decoded)
-
-            # null char is used to signal the end of message
-
-            try:
-                if data_decoded[-1] == '\x00':
-                    break
-            except:
-                print('[THREAD PORT {}] user disconected, closing connection'.format(self.port))
-                connection.close()
-                available_ports.appendleft(self.port)
-                sys.exit()
-
-        total_data = ''.join(data)[:-1]
-        return (total_data)
-
-
-    def send_message(self, connection, message):
-        """ Send decoded message through given connection with appended null char """
-
-        # null char is used to signal the end of message
-        message = message + '\x00'
-        connection.send(message.encode())
-
-
 
 class SwitchWorker():
     """ Switch worker will just listen form initial connections from client.
