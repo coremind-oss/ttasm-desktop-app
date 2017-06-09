@@ -1,4 +1,4 @@
-import sys
+import sys, os
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu
@@ -69,5 +69,8 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def quit(self):
         """Exit program in a clean way."""
-
+        if os.path.isfile('pid'):
+            os.remove('pid') 
+            print ("Deleting pid file")
+        print ("Exiting")
         sys.exit(0)
