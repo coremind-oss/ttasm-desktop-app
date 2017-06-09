@@ -81,7 +81,7 @@ class Client():
 
         # Send user input to server, and read whatever server sends back. FOREVER!
         while True:
-            test_message = raw_input('[DEDICATED PORT {}] enter your message: '.format(dedicated_port))
+            test_message = input('[DEDICATED PORT {}] enter your message: '.format(dedicated_port))
             self.send_message(sock, test_message)
             msg = self.receive_message(sock)
             print('[SERVER MESSAGE] here is your message reversed - <{}>'.format(msg))
