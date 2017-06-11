@@ -26,4 +26,4 @@ def killProccess(name):
                 
  # uncomment this to kill process of docky app
  
-killProccess("docky")
+# killProccess("docky")
