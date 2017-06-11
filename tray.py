@@ -21,7 +21,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         """Create user interface of Tray icon"""
 
         mainMenu = QMenu()
-
         subMenu = QMenu(mainMenu)
         subMenu.setTitle("Submenu")
         subButton_1 = subMenu.addAction("Action 1")
@@ -46,6 +45,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         # Keeping reference to LoginForm object so that window wouldn't close
         self.loginForm = LoginForm(parentTray = self)
+        self.loginForm.setWindowTitle("Log in")
         self.loginForm.show()
 
 
