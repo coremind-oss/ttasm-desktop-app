@@ -5,7 +5,7 @@ import threading
 from utility import receive_message, send_message
 
 
-ACCESS_PORT = 50002
+ACCESS_PORT = 40002
 SERVER_HOST = socket.gethostname()
 SERVER_IP = socket.gethostbyname(SERVER_HOST)
 CHUNK_SIZE = 2
@@ -13,7 +13,7 @@ CHUNK_SIZE = 2
 # THIS IS SOLUTION FOR TESTING ONLY
 # make a deque of 10 000 numbers to serve as our available ports pool
 # get ports by calling available_ports.pop()
-available_ports = deque(range(50001, 60000))
+available_ports = deque(range(40001, 50000))
 
 
 
@@ -34,17 +34,16 @@ class DedicatedClientConnection():
             s.listen(1)
             print('[THREAD PORT {}] listening'.format(self.port))
 
-            conn, (cli_ip, cli_port) = s.accept()
+            sock, (cli_ip, cli_port) = s.accept()
             print('[THREAD PORT {}] got connection from {}:{}'.format(self.port, cli_ip, cli_port))
 
             # Expect message from client, then send reversed message back. FOREVER!
             while True:
-                client_msg = receive_message(conn)
+                client_msg = receive_message(sock)
                 print('[THREAD PORT {}] got message - <{}>'.format(self.port, client_msg))
 
-                reversed_msg = client_msg[::-1] # reverse message
-                send_message(conn, reversed_msg)
-                print('[THREAD PORT {}] sent back reversed message - <{}>'.format(self.port, reversed_msg))
+                send_message(sock, client_msg)
+                print('[THREAD PORT {}] sent back reversed message - <{}>'.format(self.port, client_msg))
 
 class SwitchWorker():
     """ Switch worker will just listen form initial connections from client.
@@ -65,7 +64,7 @@ class SwitchWorker():
             s.bind((self.ip, self.port))
             s.listen(5)
             while True:
-                conn, (cli_ip, cli_port) = s.accept()
+                sock, (cli_ip, cli_port) = s.accept()
                 print('\n[SW] got connection from {}:{}'.format(cli_ip, cli_port))
 
                 dedicated_port = available_ports.pop()
@@ -79,7 +78,9 @@ class SwitchWorker():
 
                 # Send encoded dedicated port number to client
                 print('[SW] sending port num {} to {}:{}'.format(server_response, cli_ip, cli_port))
-                conn.send(server_response.encode())
+                
+                # Add 9 characters in front for consistency
+                send_message(sock, server_response)
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ from utility import receive_message, send_message
 
 
 SERVER_IP = '127.0.1.1'
-SERVER_ACCESS_PORT = 50002
+SERVER_ACCESS_PORT = 40002
 CHUNK_SIZE = 2
 
 

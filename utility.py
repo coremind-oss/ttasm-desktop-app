@@ -1,6 +1,3 @@
-import sys
-
-
 def receive_message(sock, chunk_size=1024):
     """ Collect arriving message on connection, decode it and remove null char from end """
 
@@ -29,20 +26,25 @@ def receive_message(sock, chunk_size=1024):
     print ('total data is', total_data)
     # grab the first nine bytes, decode into a string
     decoded_bytes_length = total_data[:9].decode('utf-8')
-    print ('decoded bytes length {}', decoded_bytes_length)
+    print ('decoded bytes length {}'.format(decoded_bytes_length))
     print('message length sould be', decoded_bytes_length, type(decoded_bytes_length))
     
     # cast the string into an integer
     #int_length = int(decoded_bytes_length)
     #print(int_length, type(int_length))
 
-    return (total_data)
+    return (total_data[9:])
 
 def send_message(sock, message):
     """ Send decoded message through given connection with appended null char """
 
+    print(message, type(message))
+
     # null char is used to signal the end of message
-    message_bytes = bytearray(message, 'utf-8')
+    if isinstance(message, str):
+        message_bytes = bytearray(message, 'utf-8')
+    else:
+        message_bytes = message
 
     total_length = len(message_bytes) + 9
     length_string = '{:09d}'.format(total_length)
