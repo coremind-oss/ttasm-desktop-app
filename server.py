@@ -5,7 +5,7 @@ import threading
 from utility import receive_message, send_message
 
 
-ACCESS_PORT = 50000
+ACCESS_PORT = 50002
 SERVER_HOST = socket.gethostname()
 SERVER_IP = socket.gethostbyname(SERVER_HOST)
 CHUNK_SIZE = 2
@@ -69,7 +69,7 @@ class SwitchWorker():
                 print('\n[SW] got connection from {}:{}'.format(cli_ip, cli_port))
 
                 dedicated_port = available_ports.pop()
-                server_response = "{}{}".format(str(dedicated_port), '\x00')
+                server_response = str(dedicated_port)
 
                 # Create dedicated separate thread for comunication with client
                 print('[SW] preparing connection for port {}'.format(dedicated_port))

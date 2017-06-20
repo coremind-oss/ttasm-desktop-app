@@ -7,7 +7,7 @@ from utility import receive_message, send_message
 
 
 SERVER_IP = '127.0.1.1'
-SERVER_ACCESS_PORT = 50000
+SERVER_ACCESS_PORT = 50002
 CHUNK_SIZE = 2
 
 
@@ -38,8 +38,8 @@ class Client():
         print("Conected to {}:{}".format(SERVER_IP, SERVER_ACCESS_PORT))
 
         new_port = receive_message(self.initial_sock)
+        new_port = new_port.decode()
         print("Dedicated port is {}".format(new_port))
-
         return (new_port)
 
     def dedicated_conection(self, sock, server_ip, dedicated_port):
