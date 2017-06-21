@@ -8,7 +8,6 @@ from utility import receive_message, send_message
 
 SERVER_IP = '127.0.1.1'
 SERVER_ACCESS_PORT = 40002
-CHUNK_SIZE = 2
 
 
 class Client():
@@ -61,7 +60,7 @@ class Client():
             test_message = input('[DEDICATED PORT {}] enter your message: '.format(dedicated_port))
             send_message(sock, test_message)
             msg = receive_message(sock)
-            print('[SERVER MESSAGE] here is your message reversed - <{}>'.format(msg))
+            print('[SERVER MESSAGE] - <{}>'.format(msg))
 
 
 

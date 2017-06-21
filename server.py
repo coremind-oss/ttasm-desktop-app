@@ -43,7 +43,7 @@ class DedicatedClientConnection():
                 print('[THREAD PORT {}] got message - <{}>'.format(self.port, client_msg))
 
                 send_message(sock, client_msg)
-                print('[THREAD PORT {}] sent back reversed message - <{}>'.format(self.port, client_msg))
+                print('[THREAD PORT {}] sent back message - <{}>'.format(self.port, client_msg))
 
 class SwitchWorker():
     """ Switch worker will just listen form initial connections from client.
@@ -68,7 +68,7 @@ class SwitchWorker():
                 print('\n[SW] got connection from {}:{}'.format(cli_ip, cli_port))
 
                 dedicated_port = available_ports.pop()
-                server_response = '000000000' + str(dedicated_port)
+                server_response = str(dedicated_port)
 
                 # Create dedicated separate thread for comunication with client
                 print('[SW] preparing connection for port {}'.format(dedicated_port))
