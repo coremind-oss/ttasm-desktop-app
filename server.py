@@ -68,7 +68,7 @@ class SwitchWorker():
                 print('\n[SW] got connection from {}:{}'.format(cli_ip, cli_port))
 
                 dedicated_port = available_ports.pop()
-                server_response = str(dedicated_port)
+                server_response = '000000000' + str(dedicated_port)
 
                 # Create dedicated separate thread for comunication with client
                 print('[SW] preparing connection for port {}'.format(dedicated_port))
@@ -78,7 +78,7 @@ class SwitchWorker():
 
                 # Send encoded dedicated port number to client
                 print('[SW] sending port num {} to {}:{}'.format(server_response, cli_ip, cli_port))
-                
+
                 # Add 9 characters in front for consistency
                 send_message(sock, server_response)
 
