@@ -1,7 +1,8 @@
-def receive_message(sock, chunk_size=1024):
+def receive_message(sock, chunk_size=14):
     """ Collect arriving message on connection. Excpected message format is bytearray \
         with 9 bytes long header representing total message size in bytes."""
 
+#    data = []
     total_data = b''
     first_chunk = True
     while (True):
@@ -14,26 +15,46 @@ def receive_message(sock, chunk_size=1024):
             print ('message header is', message_header)
             decoded_bytes_int = int (message_header)
             print ()
+            #print ('supposed message size integer is', decoded_bytes_int)
             first_chunk = False
-
+        #data_decoded = data_chunk.decode()
+#        data.append(data_chunk)
         total_data += data_chunk
-
         if len(total_data) == decoded_bytes_int:
             break
+        # null char is used to signal the end of message
+
+        # try:
+        #     #if data_decoded[-1] == '\x00':
+        #     if
+        #         break
+        # except:
+        #     port = sock.getsockname()[1]
+        #     print('[THREAD PORT {}] user disconected, closing connection'.format(port))
+        #     sock.close()
+        #     # sys.exit(-1)
+        #
+        #     # total_data = ''.join(data)[:-1]
 
 
     print ('total data is', total_data)
+    # # grab the first nine bytes, decode into a string
+    # decoded_bytes_length = total_data[:9].decode('utf-8')
     print ('decoded bytes length {}'.format(decoded_bytes_int))
     print('message length sould be', decoded_bytes_int, type(decoded_bytes_int))
+
+    # cast the string into an integer
+    #int_length = int(decoded_bytes_length)
+    #print(int_length, type(int_length))
 
     return (total_data[9:])
 
 def send_message(sock, message):
-    """ Appends 9 bytes long header to message and sends it to sock as bytes  """
+    """ Send decoded message through given connection with appended null char """
 
     print(message, type(message))
 
-
+    # null char is used to signal the end of message
     if isinstance(message, str):
         message_bytes = bytearray(message, 'utf-8')
     else:
@@ -47,4 +68,5 @@ def send_message(sock, message):
     print ('new message is ', new_message)
     print ('message length in bytes is {}'.format(len(message_bytes)))
 
+    #message = message + '\x00'
     sock.send(new_message)

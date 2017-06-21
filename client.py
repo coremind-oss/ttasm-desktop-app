@@ -7,7 +7,8 @@ from utility import receive_message, send_message
 
 
 SERVER_IP = '127.0.1.1'
-SERVER_ACCESS_PORT = 40008
+SERVER_ACCESS_PORT = 40002
+CHUNK_SIZE = 2
 
 
 class Client():
@@ -23,8 +24,6 @@ class Client():
 
 
     def run(self):
-        dedicated_port = self.get_dedicated_port()
-        print (dedicated_port, type(dedicated_port))
         dedicated_port = int(self.get_dedicated_port())
 
         self.initial_sock.close()
@@ -39,9 +38,7 @@ class Client():
         print("Conected to {}:{}".format(SERVER_IP, SERVER_ACCESS_PORT))
 
         new_port = receive_message(self.initial_sock)
-        print (new_port)
         new_port = new_port.decode()
-        new_port = new_port[9:]
         print("Dedicated port is {}".format(new_port))
         return (new_port)
 
@@ -64,12 +61,11 @@ class Client():
             test_message = input('[DEDICATED PORT {}] enter your message: '.format(dedicated_port))
             send_message(sock, test_message)
             msg = receive_message(sock)
-            print('[SERVER MESSAGE] - <{}>'.format(msg))
+            print('[SERVER MESSAGE] here is your message reversed - <{}>'.format(msg))
 
 
 
 if __name__ == '__main__':
     client = Client(SERVER_IP, SERVER_ACCESS_PORT)
-    # clientThread = threading.Thread(target=client.run)
-    # clientThread.start()
-    client.run()
+    clientThread = threading.Thread(target=client.run)
+    clientThread.start()

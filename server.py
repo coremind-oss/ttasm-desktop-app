@@ -5,7 +5,7 @@ import threading
 from utility import receive_message, send_message
 
 
-ACCESS_PORT = 40008
+ACCESS_PORT = 40002
 SERVER_HOST = socket.gethostname()
 SERVER_IP = socket.gethostbyname(SERVER_HOST)
 CHUNK_SIZE = 2
@@ -43,7 +43,7 @@ class DedicatedClientConnection():
                 print('[THREAD PORT {}] got message - <{}>'.format(self.port, client_msg))
 
                 send_message(sock, client_msg)
-                print('[THREAD PORT {}] sent back message - <{}>'.format(self.port, client_msg))
+                print('[THREAD PORT {}] sent back reversed message - <{}>'.format(self.port, client_msg))
 
 class SwitchWorker():
     """ Switch worker will just listen form initial connections from client.
@@ -68,7 +68,7 @@ class SwitchWorker():
                 print('\n[SW] got connection from {}:{}'.format(cli_ip, cli_port))
 
                 dedicated_port = available_ports.pop()
-                server_response = bytearray('000000000'+str(dedicated_port), 'utf-8')
+                server_response = '000000000' + str(dedicated_port)
 
                 # Create dedicated separate thread for comunication with client
                 print('[SW] preparing connection for port {}'.format(dedicated_port))
@@ -77,7 +77,7 @@ class SwitchWorker():
                 dedicatedConnectionThread.start()
 
                 # Send encoded dedicated port number to client
-                print('[SW] sending port num {} to {}:{}'.format(dedicated_port, cli_ip, cli_port))
+                print('[SW] sending port num {} to {}:{}'.format(server_response, cli_ip, cli_port))
 
                 # Add 9 characters in front for consistency
                 send_message(sock, server_response)
