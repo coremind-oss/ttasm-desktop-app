@@ -1,33 +1,44 @@
 from Crypto.PublicKey import RSA
 
-def receive_message(sock, chunk_size=1024):
+
+def receive_message(sock, chunk_size=1):
     """ Collect arriving message on connection. Expected message format is bytearray \
         with 9 bytes long header representing total message size in bytes."""
 
     total_data = b''
     got_header = False
+
     while (True):
-        print (total_data, type (total_data))
         data_chunk = sock.recv(chunk_size)
         print ('recieved chunk')
         total_data += data_chunk
-        if not got_header and len(total_data) >= 9:
-            # grab the first nine bytes, decode into a string
-            message_header = total_data[:9].decode('utf-8')
-            print ('message header is', message_header)
-            decoded_bytes_int = int (message_header)
-            got_header = True
 
         if len(total_data) >= 9:
+
+            if not got_header :
+                # grab the first nine bytes, decode into a string
+                message_header = total_data[:9].decode('utf-8')
+                print ('message header is', message_header)
+                decoded_bytes_int = int (message_header)
+                got_header = True
+
             if len(total_data) == decoded_bytes_int:
-                break
+                    break
+
+        # This helps with client disconnects
+        if not data_chunk :
+            break
+
+    try:
+        decoded_bytes_int
+        print ('decoded bytes length {}'.format(decoded_bytes_int))
+        print('message length sould be', decoded_bytes_int, type(decoded_bytes_int))
+        return (total_data[9:])
+    except:
+        print ('Something went wrong while receiving')
+        return (b'ReceiveError')
 
 
-    print ('total data is', total_data)
-    print ('decoded bytes length {}'.format(decoded_bytes_int))
-    print('message length sould be', decoded_bytes_int, type(decoded_bytes_int))
-
-    return (total_data[9:])
 
 
 def send_message(sock, message):
