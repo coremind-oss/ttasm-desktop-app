@@ -2,7 +2,7 @@ from collections import deque
 import socket
 import threading
 
-from utility import receive_message, send_message
+from utility import receive_message, send_message, decrypt_message
 
 
 ACCESS_PORT = 40002
@@ -36,14 +36,15 @@ class DedicatedClientConnection():
 
             sock, (cli_ip, cli_port) = s.accept()
             print('[THREAD PORT {}] got connection from {}:{}'.format(self.port, cli_ip, cli_port))
-
             # Expect message from client, then send reversed message back. FOREVER!
             while True:
                 client_msg = receive_message(sock)
                 print('[THREAD PORT {}] got message - <{}>'.format(self.port, client_msg))
+                decrypted_message = decrypt_message(client_msg, open('serverPriv.key', 'r').read())
+                print ('Decrypted message is', decrypted_message, type(decrypted_message))
+                send_message(sock, decrypted_message)
+                print('[THREAD PORT {}] sent back message - <{}>'.format(self.port, decrypted_message))
 
-                send_message(sock, client_msg)
-                print('[THREAD PORT {}] sent back message - <{}>'.format(self.port, client_msg))
 
 class SwitchWorker():
     """ Switch worker will just listen form initial connections from client.

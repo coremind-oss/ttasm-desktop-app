@@ -3,7 +3,7 @@ import sys
 import threading
 import traceback
 
-from utility import receive_message, send_message
+from utility import receive_message, send_message, encrypt_message
 
 
 SERVER_IP = '127.0.1.1'
@@ -58,7 +58,8 @@ class Client():
         # Send user input to server, and read whatever server sends back. FOREVER!
         while True:
             test_message = input('[DEDICATED PORT {}] enter your message: '.format(dedicated_port))
-            send_message(sock, test_message)
+            encrypted_message = encrypt_message(test_message, open('serverPub.key', 'r').read())
+            send_message(sock, encrypted_message)
             msg = receive_message(sock)
             print('[SERVER MESSAGE] - <{}>'.format(msg))
 

@@ -1,5 +1,7 @@
+from Crypto.PublicKey import RSA
+
 def receive_message(sock, chunk_size=1024):
-    """ Collect arriving message on connection. Excpected message format is bytearray \
+    """ Collect arriving message on connection. Expected message format is bytearray \
         with 9 bytes long header representing total message size in bytes."""
 
     total_data = b''
@@ -7,8 +9,8 @@ def receive_message(sock, chunk_size=1024):
     while (True):
         print (total_data, type (total_data))
         data_chunk = sock.recv(chunk_size)
-        total_data += data_chunk
         print ('recieved chunk')
+        total_data += data_chunk
         if not got_header and len(total_data) >= 9:
             # grab the first nine bytes, decode into a string
             message_header = total_data[:9].decode('utf-8')
@@ -45,3 +47,13 @@ def send_message(sock, message):
     print ('message length in bytes is {}'.format(len(message_bytes)))
 
     sock.send(new_message)
+
+def encrypt_message (message, public_key):
+    key = RSA.importKey(public_key)
+    enc_data = key.encrypt(message.encode('utf-8'), 32)
+    return enc_data[0]
+
+def decrypt_message (message, private_key):
+    key = RSA.importKey(private_key)
+    dec_data = key.decrypt (message)
+    return dec_data
