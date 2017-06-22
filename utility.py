@@ -1,7 +1,8 @@
+from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
 
-def receive_message(sock, chunk_size=1):
+def receive_message(sock, chunk_size=1024):
     """ Collect arriving message on connection. Expected message format is bytearray \
         with 9 bytes long header representing total message size in bytes."""
 
@@ -25,7 +26,7 @@ def receive_message(sock, chunk_size=1):
             if len(total_data) == decoded_bytes_int:
                     break
 
-        # This helps with client disconnects
+        # This helps server handle client disconnects better
         if not data_chunk :
             break
 
@@ -61,10 +62,12 @@ def send_message(sock, message):
 
 def encrypt_message (message, public_key):
     key = RSA.importKey(public_key)
-    enc_data = key.encrypt(message.encode('utf-8'), 32)
-    return enc_data[0]
+    cipher = PKCS1_OAEP.new(key)
+    ciphertext = cipher.encrypt(message.encode('utf-8'))
+    return ciphertext
 
 def decrypt_message (message, private_key):
     key = RSA.importKey(private_key)
-    dec_data = key.decrypt (message)
+    cipher = PKCS1_OAEP.new(key)
+    dec_data = cipher.decrypt(message)
     return dec_data
