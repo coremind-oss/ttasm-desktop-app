@@ -1,8 +1,9 @@
-import sys, os
+import sys, os, requests
 from PyQt5.QtWidgets import QApplication
-from tray import SystemTrayIcon
 import psutil
+from Crypto.PublicKey import RSA
 
+from tray import SystemTrayIcon
 
 def spawnPIDfile(currentProc):
     with open('pid', 'w') as pidFile:
@@ -19,13 +20,10 @@ def alreadyRunnigPU():
     currentProc = psutil.Process()
     print ('PsUtil info:')
     print ('ProcName:', currentProc.name(), 'id:', currentProc.pid, 'status:', currentProc.status())
-    print ('Proc children:', currentProc.children())
-    print ('ProcParent:', currentProc.parent(),)
-    print('Full path:', psutil.Process().exe())
     print('Current working directory:', currentProc.cwd())
      
     if not os.path.exists('./pid'):
-        print ('Pid file not found, creating pid file & loading')
+        print ('Pid file not found, creating pid file')
         return spawnPIDfile(currentProc)
         
     else:
@@ -44,11 +42,47 @@ def alreadyRunnigPU():
             return spawnPIDfile(currentProc)
 
 
+def start_up():
+    server_public_key_check('HTTP', '127.0.0.1:8000')
+
+# http_protocol would represent HTTP or HTTPS
+def server_public_key_check(http_protocol, server_ip):
+    try:
+        f = open('./serverdata/server_id_rsa.pub', 'r')
+        # return public key object if the file exists
+        return RSA.importKey(f.read())
+    except FileNotFoundError:
+        
+        print('server_id_rsa.pub not found')
+        if not os.path.exists('./serverdata'):
+            os.makedirs('./serverdata')
+        
+        url = '{http_protocol}://{server_ip}/id_rsa/'.format(
+            server_ip = server_ip,
+            http_protocol = http_protocol,
+        )
+        print('trying to get the public key from:', url) 
+        response = requests.get(url)
+        print ('response text:', response.text)
+        if response.status_code == 200:
+            with open('./serverdata/server_id_rsa.pub', 'w') as file: 
+                file.write(response.text)
+                print ('server_id_rsa.pub aquired and stored as ./serverdata/server_id_rsa.pub')
+            return RSA.importKey(response.text)
+        
+    except Exception as ex:
+        print('a random exception thrown', ex, type(ex))
+    
+    else:
+        raise Exception('server did not provide a public key')
+
+
 def main():
     app = QApplication([])
     app.setQuitOnLastWindowClosed(False)
     
     systemTrayIcon = SystemTrayIcon()
+    start_up()
     systemTrayIcon.show()
     sys.exit(app.exec_())
 
