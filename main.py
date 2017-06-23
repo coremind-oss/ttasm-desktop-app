@@ -57,7 +57,7 @@ def server_public_key_check(http_protocol, server_ip):
         if not os.path.exists('./serverdata'):
             os.makedirs('./serverdata')
         
-        url = '{http_protocol}://{server_ip}/id_rsa/'.format(
+        url = '{http_protocol}://{server_ip}/public_key/'.format(
             server_ip = server_ip,
             http_protocol = http_protocol,
         )
