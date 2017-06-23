@@ -7,8 +7,7 @@ from tray import SystemTrayIcon
 
 
 
-SERVER_IP = '127.0.0.1'
-SERVER_ACCESS_PORT = '8000'
+SERVER_URL = '127.0.0.1:8000'
 HTTP_PROTOCOL = 'HTTP' # http_protocol would represent HTTP or HTTPS
 
 
@@ -50,7 +49,7 @@ def alreadyRunnigPU():
 
 
 def start_up():
-    update_server_public_key(HTTP_PROTOCOL, '{}:{}'.format(SERVER_IP, SERVER_ACCESS_PORT))
+    update_server_public_key(HTTP_PROTOCOL, SERVER_URL)
 #     check_credentials()
 
 
@@ -59,14 +58,14 @@ def check_credentials():
     pass
 
 
-def update_server_public_key(http_protocol, server_ip):
+def update_server_public_key(http_protocol, server_url):
     #get server private key and store it in ./serverdata/server_id_rsa.pub
     
     if not os.path.exists('./serverdata'):
         os.makedirs('./serverdata')
     
-    url = '{http_protocol}://{server_ip}/public_key/'.format(
-        server_ip = server_ip,
+    url = '{http_protocol}://{server_url}/public_key/'.format(
+        server_url = server_url,
         http_protocol = http_protocol,
     )
     print('trying to get the public key from:', url) 
@@ -86,8 +85,8 @@ def main():
     app = QApplication([])
     app.setQuitOnLastWindowClosed(False)
     
+    try_to_login()
     systemTrayIcon = SystemTrayIcon()
-    start_up()
     systemTrayIcon.show()
     sys.exit(app.exec_())
 

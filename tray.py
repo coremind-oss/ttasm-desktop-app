@@ -10,7 +10,7 @@ from login import LoginForm
 class SystemTrayIcon(QSystemTrayIcon):
 
 
-    def __init__(self):
+    def __init__(self, ):
         icon = QIcon('icons/icon-placeholder_128x128.png')
         super(SystemTrayIcon, self).__init__(icon)
 
