@@ -5,6 +5,13 @@ from Crypto.PublicKey import RSA
 
 from tray import SystemTrayIcon
 
+
+
+SERVER_IP = '127.0.0.1'
+SERVER_ACCESS_PORT = '8000'
+HTTP_PROTOCOL = 'HTTP' # http_protocol would represent HTTP or HTTPS
+
+
 def spawnPIDfile(currentProc):
     with open('pid', 'w') as pidFile:
         pidFile.write(str(currentProc.pid))
@@ -43,39 +50,37 @@ def alreadyRunnigPU():
 
 
 def start_up():
-    server_public_key_check('HTTP', '127.0.0.1:8000')
+    update_server_public_key(HTTP_PROTOCOL, '{}:{}'.format(SERVER_IP, SERVER_ACCESS_PORT))
+#     check_credentials()
 
-# http_protocol would represent HTTP or HTTPS
-def server_public_key_check(http_protocol, server_ip):
+
+def check_credentials():
+    #Check if credentials file present. If so, show auto-filled login form, else go to sign up form.
+    pass
+
+
+def update_server_public_key(http_protocol, server_ip):
+    #get server private key and store it in ./serverdata/server_id_rsa.pub
+    
+    if not os.path.exists('./serverdata'):
+        os.makedirs('./serverdata')
+    
+    url = '{http_protocol}://{server_ip}/public_key/'.format(
+        server_ip = server_ip,
+        http_protocol = http_protocol,
+    )
+    print('trying to get the public key from:', url) 
     try:
-        f = open('./serverdata/server_id_rsa.pub', 'r')
-        # return public key object if the file exists
-        return RSA.importKey(f.read())
-    except FileNotFoundError:
-        
-        print('server_id_rsa.pub not found')
-        if not os.path.exists('./serverdata'):
-            os.makedirs('./serverdata')
-        
-        url = '{http_protocol}://{server_ip}/public_key/'.format(
-            server_ip = server_ip,
-            http_protocol = http_protocol,
-        )
-        print('trying to get the public key from:', url) 
         response = requests.get(url)
         print ('response text:', response.text)
         if response.status_code == 200:
             with open('./serverdata/server_id_rsa.pub', 'w') as file: 
                 file.write(response.text)
                 print ('server_id_rsa.pub aquired and stored as ./serverdata/server_id_rsa.pub')
-            return RSA.importKey(response.text)
-        
-    except Exception as ex:
-        print('a random exception thrown', ex, type(ex))
-    
-    else:
-        raise Exception('server did not provide a public key')
-
+        else:
+            print ('Server failed to provide public key')
+    except:
+        print ('Something went wrong, server may be down')
 
 def main():
     app = QApplication([])
