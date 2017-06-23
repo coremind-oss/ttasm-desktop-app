@@ -14,8 +14,9 @@ def receive_message(sock, chunk_size=1024):
         print ('recieved chunk')
         total_data += data_chunk
 
+        #once first 9 bytes are received, get message header
         if len(total_data) >= 9:
-
+            
             if not got_header :
                 # grab the first nine bytes, decode into a string
                 message_header = total_data[:9].decode('utf-8')
@@ -63,11 +64,11 @@ def send_message(sock, message):
 def encrypt_message (message, public_key):
     key = RSA.importKey(public_key)
     cipher = PKCS1_OAEP.new(key)
-    ciphertext = cipher.encrypt(message.encode('utf-8'))
-    return ciphertext
+    encrypted_data = cipher.encrypt(message.encode('utf-8'))
+    return encrypted_data
 
 def decrypt_message (message, private_key):
     key = RSA.importKey(private_key)
     cipher = PKCS1_OAEP.new(key)
-    dec_data = cipher.decrypt(message)
-    return dec_data
+    decrypted_data = cipher.decrypt(message)
+    return decrypted_data
