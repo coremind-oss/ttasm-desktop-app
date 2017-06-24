@@ -2,6 +2,8 @@ import sys, os, requests
 from PyQt5.QtWidgets import QApplication
 import psutil
 from Crypto.PublicKey import RSA
+from Crypto import Random
+from Crypto.Hash import SHA256
 
 from tray import SystemTrayIcon
 
@@ -50,6 +52,7 @@ def alreadyRunnigPU():
 
 def start_up():
     update_server_public_key(HTTP_PROTOCOL, SERVER_URL)
+    check_client_key()
 #     check_credentials()
 
 
@@ -57,6 +60,38 @@ def check_credentials():
     #Check if credentials file present. If so, show auto-filled login form, else go to sign up form.
     pass
 
+def check_client_key(http_protocol = HTTP_PROTOCOL, server_url = SERVER_URL):
+    if not os.path.exists('./clientdata'):
+        os.makedirs('./clientdata')
+    
+    if not os.path.exists('./serverdata/client_RSA'):    
+        cl_rsa = create_private_key()
+     
+    url = '{}://{}/client_key_hash/'.format(http_protocol, server_url)
+    print (url)
+
+    print('trying to send client key hash to server:', url) 
+    files = {'file': open('./clientdata/client_RSA.hash', 'rb')}
+    try:
+        response = requests.post(url, files=files)
+        print (response.text)
+    except Exception as e:
+        print (e)
+    
+
+def create_private_key():
+    #Create new client RSA private key, public key and public key hash and store them to disk
+    random_generator = Random.new().read
+    cl_rsa = RSA.generate(2048, random_generator)
+    with open('./clientdata/client_RSA', 'wb') as f:
+        f.write(cl_rsa.exportKey())
+    with open('./clientdata/client_RSA.pub', 'wb') as f:
+        f.write(cl_rsa.publickey().exportKey())
+    with open('./clientdata/client_RSA.hash', 'w') as f:
+        f.write(SHA256.new(cl_rsa.publickey().exportKey()).hexdigest())
+    
+    print ('Client keys created')
+    return cl_rsa
 
 def update_server_public_key(http_protocol, server_url):
     #get server private key and store it in ./serverdata/server_id_rsa.pub
@@ -79,13 +114,13 @@ def update_server_public_key(http_protocol, server_url):
         else:
             print ('Server failed to provide public key')
     except:
-        print ('Something went wrong, server may be down')
+        print ('No response, server may be down')
 
 def main():
     app = QApplication([])
     app.setQuitOnLastWindowClosed(False)
-    
-    try_to_login()
+    start_up()
+    #try_to_login()
     systemTrayIcon = SystemTrayIcon()
     systemTrayIcon.show()
     sys.exit(app.exec_())
