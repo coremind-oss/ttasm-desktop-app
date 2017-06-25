@@ -7,8 +7,6 @@ from Crypto.Hash import SHA256
 
 from tray import SystemTrayIcon
 
-
-
 SERVER_URL = '127.0.0.1:8000'
 HTTP_PROTOCOL = 'HTTP' # http_protocol would represent HTTP or HTTPS
 
@@ -52,7 +50,9 @@ def alreadyRunnigPU():
 
 def start_up():
     update_server_public_key(HTTP_PROTOCOL, SERVER_URL)
-    check_client_key()
+    current_user = 'luka'
+    current_password = '1234567a'
+    check_client_key(current_user)
 #     check_credentials()
 
 
@@ -60,21 +60,22 @@ def check_credentials():
     #Check if credentials file present. If so, show auto-filled login form, else go to sign up form.
     pass
 
-def check_client_key(http_protocol = HTTP_PROTOCOL, server_url = SERVER_URL):
+def check_client_key(current_user, http_protocol = HTTP_PROTOCOL, server_url = SERVER_URL):
     if not os.path.exists('./clientdata'):
         os.makedirs('./clientdata')
     
-    if not os.path.exists('./serverdata/client_RSA'):    
+    if not os.path.exists('./clientdata/client_RSA'):    
         cl_rsa = create_private_key()
      
-    url = '{}://{}/client_key_hash/'.format(http_protocol, server_url)
+    #send client key server for comparing
+    url = '{}://{}/client_key/'.format(http_protocol, server_url)
     print (url)
+    pub_key = open('./clientdata/client_RSA.pub', 'r').read()
+    print('trying to send client key to server:', url) 
 
-    print('trying to send client key hash to server:', url) 
-    files = {'file': open('./clientdata/client_RSA.hash', 'rb')}
     try:
-        response = requests.post(url, files=files)
-        print (response.text)
+        response = requests.post(url, data={'user' : current_user, 'pub_key': pub_key})
+        print ('Client public key sent to server')
     except Exception as e:
         print (e)
     
