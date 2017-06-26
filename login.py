@@ -1,3 +1,4 @@
+import requests
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
@@ -136,12 +137,36 @@ class LoginForm(QWidget):
             msgBox.exec()
 
         else:
-            parentTray.showMessage("Can't do that yet",
-                                   "Sorry {}, but login ins't implemented yet :(".format(username),
-                                   QSystemTrayIcon.Critical,
-                                   8000)
+#             parentTray.showMessage("Can't do that yet",
+#                                    "Sorry {}, but login ins't implemented yet :(".format(username),
+#                                    QSystemTrayIcon.Critical,
+#                                    8000)
+            url = '{}://{}/auth/'.format('HTTP', '127.0.0.1:8000')
+            response = requests.post(url, data={'user' : username, 'pass': password})
+            pub_key = open('./clientdata/client_RSA.pub', 'r').read()
+            print('trying to authenticate on', url) 
+            if response.text == 'ok':
+                msgBox = QMessageBox()
+                msgBox.setInformativeText('You are now logged in as {}'.format(username))
+                msgBox.setIcon(QMessageBox.Information)
+                msgBox.setWindowTitle("Log-in")
     
-            self.close()
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msgBox.exec()
+                self.close()
+            else:
+                msgBox = QMessageBox()
+                msgBox.setInformativeText('Invalid username and/or password')
+                msgBox.setIcon(QMessageBox.Information)
+                msgBox.setWindowTitle("Oops!")
+    
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msgBox.exec()
+                self.show()
+                pass
+
 
 
     def cancel(self):

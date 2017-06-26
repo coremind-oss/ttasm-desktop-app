@@ -7,6 +7,9 @@ from Crypto.Hash import SHA256
 
 from tray import SystemTrayIcon
 
+global SERVER_URL
+global HTTP_PROTOCOL
+
 SERVER_URL = '127.0.0.1:8000'
 HTTP_PROTOCOL = 'HTTP' # http_protocol would represent HTTP or HTTPS
 
@@ -50,7 +53,7 @@ def alreadyRunnigPU():
 
 def start_up():
     update_server_public_key(HTTP_PROTOCOL, SERVER_URL)
-    current_user = 'luka'
+    current_user = 'mika'
     current_password = '1234567a'
     check_client_key(current_user)
 #     check_credentials()
@@ -69,7 +72,6 @@ def check_client_key(current_user, http_protocol = HTTP_PROTOCOL, server_url = S
      
     #send client key server for comparing
     url = '{}://{}/client_key/'.format(http_protocol, server_url)
-    print (url)
     pub_key = open('./clientdata/client_RSA.pub', 'r').read()
     print('trying to send client key to server:', url) 
 
@@ -107,7 +109,6 @@ def update_server_public_key(http_protocol, server_url):
     print('trying to get the public key from:', url) 
     try:
         response = requests.get(url)
-        print ('response text:', response.text)
         if response.status_code == 200:
             with open('./serverdata/server_id_rsa.pub', 'w') as file: 
                 file.write(response.text)
