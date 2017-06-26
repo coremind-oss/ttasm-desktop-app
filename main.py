@@ -7,8 +7,8 @@ from Crypto.Hash import SHA256
 
 from tray import SystemTrayIcon
 
-global SERVER_URL
-global HTTP_PROTOCOL
+# global SERVER_URL
+# global HTTP_PROTOCOL
 
 SERVER_URL = '127.0.0.1:8000'
 HTTP_PROTOCOL = 'HTTP' # http_protocol would represent HTTP or HTTPS
@@ -53,7 +53,7 @@ def alreadyRunnigPU():
 
 def start_up():
     update_server_public_key(HTTP_PROTOCOL, SERVER_URL)
-    current_user = 'mika'
+    current_user = 'luka'
     current_password = '1234567a'
     check_client_key(current_user)
 #     check_credentials()

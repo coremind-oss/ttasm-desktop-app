@@ -1,10 +1,12 @@
-import requests
+import requests, json, base64
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QSystemTrayIcon
 from PyQt5 import QtCore
+
+from utility import encrypt_data
 
 
 class LoginForm(QWidget):
@@ -142,8 +144,18 @@ class LoginForm(QWidget):
 #                                    QSystemTrayIcon.Critical,
 #                                    8000)
             url = '{}://{}/auth/'.format('HTTP', '127.0.0.1:8000')
-            response = requests.post(url, data={'user' : username, 'pass': password})
-            pub_key = open('./clientdata/client_RSA.pub', 'r').read()
+            data=json.dumps({'user' : username, 'pass': password})
+            uname= username
+            print ('json:', data)
+            
+            with open('./serverdata/server_id_rsa.pub', 'r') as file:
+                server_pub = file.read()
+            encrypted_data = encrypt_data(data, server_pub)
+            base64_data = base64.b64encode(encrypted_data)
+            print ('Len of encrypted data on client:', len(base64_data))
+            response = requests.post(url, {'user' : uname, 'enc_data' : base64_data})
+            #print ('Posted data')
+
             print('trying to authenticate on', url) 
             if response.text == 'ok':
                 msgBox = QMessageBox()
@@ -165,8 +177,6 @@ class LoginForm(QWidget):
                 msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 msgBox.exec()
                 self.show()
-                pass
-
 
 
     def cancel(self):
