@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QSystemTrayIcon
 from PyQt5 import QtCore
 
-from utility import encrypt_data
+#from utility import encrypt_data
 
 
 class LoginForm(QWidget):
@@ -38,10 +38,12 @@ class LoginForm(QWidget):
         self.username = QLineEdit()
         self.password = QLineEdit()
         print (self.username.whatsThis())
-        
 
         self.username.setPlaceholderText("Enter your username")
         self.password.setPlaceholderText("Enter your password")
+        
+
+        
         # Show asterisk in input instead of password chars
         self.password.setEchoMode(QLineEdit.Password)
 
@@ -101,6 +103,13 @@ class LoginForm(QWidget):
         # Set layout for the Login Form (self)
         self.setLayout(formBox)
 
+        try:
+            last_user = open ('last_user', 'r').read()
+            self.username.setText(last_user)
+            self.password.setFocus()
+        except:
+            pass
+        
         # Disable resize
         self.setFixedSize(self.fixedWidth, self.fixedHeight)
 
@@ -139,6 +148,7 @@ class LoginForm(QWidget):
             msgBox.exec()
 
         else:
+            print ('user and pass')
 #             parentTray.showMessage("Can't do that yet",
 #                                    "Sorry {}, but login ins't implemented yet :(".format(username),
 #                                    QSystemTrayIcon.Critical,
@@ -178,6 +188,8 @@ class LoginForm(QWidget):
                 response_json = json.loads(str(response.text))
                 if response_json['status'] == 'ok':
                     parentTray.token = response_json['token']
+                    with open ('last_user' ,'w') as f:
+                        f.write(username) 
                     msgBox = QMessageBox()
                     msgBox.setInformativeText('You are now logged in as {}'.format(username))
                     msgBox.setIcon(QMessageBox.Information)

@@ -3,5 +3,6 @@
 __pycache__/
 ignore/
 pid
+last_user
 serverdata/
 clientdata/
