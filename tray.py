@@ -70,9 +70,9 @@ class SystemTrayIcon(QSystemTrayIcon):
         subMenu = QMenu(mainMenu)
         subMenu.setTitle("Util")
         subButton_1 = subMenu.addAction("Show token")
-        subButton_1.triggered.connect(self.action_1)
-        subButton_2 = subMenu.addAction("Action 2")
-        subButton_2.triggered.connect(self.action_2)
+        subButton_1.triggered.connect(self.show_token)
+        subButton_2 = subMenu.addAction("Test sockets")
+        subButton_2.triggered.connect(self.test_sockets)
 
         # Set the order of layout and add everything to main menu
         logInButton = mainMenu.addAction("Log in")
@@ -91,20 +91,24 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.loginForm.show()
 
 
-    def action_1(self):
+    def show_token(self):
+        """Placeholder function"""
+        
+        try:
+            self.showMessage('Token',
+                             self.token,
+                             QSystemTrayIcon.Information,
+                             3000)
+        except:
+            self.showMessage('Token',
+                             'No token received',
+                             QSystemTrayIcon.Information,
+                             3000)
+    def test_sockets(self):
         """Placeholder function"""
 
-        self.showMessage('Action 1',
-                         'You triggered action 1',
-                         QSystemTrayIcon.Information,
-                         3000)
-
-
-    def action_2(self):
-        """Placeholder function"""
-
-        self.showMessage('Action 2',
-                         'You triggered action 2',
+        self.showMessage('Testing',
+                         'Pending implementation',
                          QSystemTrayIcon.Information,
                          3000)
 
