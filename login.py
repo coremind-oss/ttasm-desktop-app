@@ -143,31 +143,25 @@ class LoginForm(QWidget):
 #                                    "Sorry {}, but login ins't implemented yet :(".format(username),
 #                                    QSystemTrayIcon.Critical,
 #                                    8000)
-            url = '{}://{}/auth/'.format('HTTP', '127.0.0.1:8000')
-            data=json.dumps({'user' : username, 'pass': password})
-            uname= username
-            print ('json:', data)
-            
-            with open('./serverdata/server_id_rsa.pub', 'r') as file:
-                server_pub = file.read()
-            encrypted_data = encrypt_data(data, server_pub)
-            base64_data = base64.b64encode(encrypted_data)
-            print ('Len of encrypted data on client:', len(base64_data))
-            response = requests.post(url, {'user' : uname, 'enc_data' : base64_data})
-            #print ('Posted data')
-
-            print('trying to authenticate on', url) 
-            if response.text == 'ok':
-                msgBox = QMessageBox()
-                msgBox.setInformativeText('You are now logged in as {}'.format(username))
-                msgBox.setIcon(QMessageBox.Information)
-                msgBox.setWindowTitle("Log-in")
-    
-                msgBox.setStandardButtons(QMessageBox.Ok)
-                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-                msgBox.exec()
-                self.close()
-            else:
+            url = '{}://{}/desktop-login/'.format('HTTP', '127.0.0.1:8000')
+#             data=json.dumps({'user' : username, 'pass': password})
+#             uname= username
+#             print ('json:', data)
+#             
+#             with open('./serverdata/server_id_rsa.pub', 'r') as file:
+#                 server_pub = file.read()
+#             encrypted_data = encrypt_data(data, server_pub)
+#             base64_data = base64.b64encode(encrypted_data)
+#             print ('Len of encrypted data on client:', len(base64_data))
+            print('Trying to authenticate on', url) 
+            try:
+                response = requests.post(url, {'username' : username, 'password' : password, 'client_public_key' : parentTray.client_rsa.publickey().exportKey()})
+            except Exception as e:
+                print ('No response, server may be down')
+                
+            print ('response:', response.text, type(response.text))     
+                  
+            if response.text == 'Invalid user/pass, access denied':
                 msgBox = QMessageBox()
                 msgBox.setInformativeText('Invalid username and/or password')
                 msgBox.setIcon(QMessageBox.Information)
@@ -177,7 +171,24 @@ class LoginForm(QWidget):
                 msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 msgBox.exec()
                 self.show()
-
+                return False
+            
+            else:
+#             try:
+                response_json = json.loads(str(response.text))
+                if response_json['status'] == 'ok':
+                    parentTray.token = response_json['token']
+                    msgBox = QMessageBox()
+                    msgBox.setInformativeText('You are now logged in as {}'.format(username))
+                    msgBox.setIcon(QMessageBox.Information)
+                    msgBox.setWindowTitle("Log-in")
+        
+                    msgBox.setStandardButtons(QMessageBox.Ok)
+                    msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                    msgBox.exec()
+                    self.close()
+#             except Exception as e:
+#                 print ('Invalid data received', e)
 
     def cancel(self):
         """Close password input"""
