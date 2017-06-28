@@ -1,9 +1,12 @@
+import requests, json, base64
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QSystemTrayIcon
 from PyQt5 import QtCore
+
+#from utility import encrypt_data
 
 
 class LoginForm(QWidget):
@@ -35,10 +38,12 @@ class LoginForm(QWidget):
         self.username = QLineEdit()
         self.password = QLineEdit()
         print (self.username.whatsThis())
-        
 
         self.username.setPlaceholderText("Enter your username")
         self.password.setPlaceholderText("Enter your password")
+        
+
+        
         # Show asterisk in input instead of password chars
         self.password.setEchoMode(QLineEdit.Password)
 
@@ -98,6 +103,13 @@ class LoginForm(QWidget):
         # Set layout for the Login Form (self)
         self.setLayout(formBox)
 
+        try:
+            last_user = open ('last_user', 'r').read()
+            self.username.setText(last_user)
+            self.password.setFocus()
+        except:
+            pass
+        
         # Disable resize
         self.setFixedSize(self.fixedWidth, self.fixedHeight)
 
@@ -136,13 +148,59 @@ class LoginForm(QWidget):
             msgBox.exec()
 
         else:
-            parentTray.showMessage("Can't do that yet",
-                                   "Sorry {}, but login ins't implemented yet :(".format(username),
-                                   QSystemTrayIcon.Critical,
-                                   8000)
+            print ('user and pass')
+#             parentTray.showMessage("Can't do that yet",
+#                                    "Sorry {}, but login ins't implemented yet :(".format(username),
+#                                    QSystemTrayIcon.Critical,
+#                                    8000)
+            url = '{}://{}/desktop-login/'.format('HTTP', '127.0.0.1:8000')
+#             data=json.dumps({'user' : username, 'pass': password})
+#             uname= username
+#             print ('json:', data)
+#             
+#             with open('./serverdata/server_id_rsa.pub', 'r') as file:
+#                 server_pub = file.read()
+#             encrypted_data = encrypt_data(data, server_pub)
+#             base64_data = base64.b64encode(encrypted_data)
+#             print ('Len of encrypted data on client:', len(base64_data))
+            print('Trying to authenticate on', url) 
+            try:
+                response = requests.post(url, {'username' : username, 'password' : password, 'client_public_key' : parentTray.client_rsa.publickey().exportKey()})
+            except Exception as e:
+                print ('No response, server may be down')
+                
+            print ('response:', response.text, type(response.text))     
+                  
+            if response.text == 'Invalid user/pass, access denied':
+                msgBox = QMessageBox()
+                msgBox.setInformativeText('Invalid username and/or password')
+                msgBox.setIcon(QMessageBox.Information)
+                msgBox.setWindowTitle("Oops!")
     
-            self.close()
-
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msgBox.exec()
+                self.show()
+                return False
+            
+            else:
+#             try:
+                response_json = json.loads(str(response.text))
+                if response_json['status'] == 'ok':
+                    parentTray.token = response_json['token']
+                    with open ('last_user' ,'w') as f:
+                        f.write(username) 
+                    msgBox = QMessageBox()
+                    msgBox.setInformativeText('You are now logged in as {}'.format(username))
+                    msgBox.setIcon(QMessageBox.Information)
+                    msgBox.setWindowTitle("Log-in")
+        
+                    msgBox.setStandardButtons(QMessageBox.Ok)
+                    msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                    msgBox.exec()
+                    self.close()
+#             except Exception as e:
+#                 print ('Invalid data received', e)
 
     def cancel(self):
         """Close password input"""
