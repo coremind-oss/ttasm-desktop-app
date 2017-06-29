@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QSystemTrayIcon
 from PyQt5 import QtCore
 
 #from utility import encrypt_data
-
+from timestamp_form import TimestampForm
 
 class LoginForm(QWidget):
 
@@ -28,6 +28,8 @@ class LoginForm(QWidget):
 
         self.create_ui()
         self.move_to_primary_center()
+        
+        
 
 
     def create_ui(self):
@@ -199,6 +201,14 @@ class LoginForm(QWidget):
                     msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                     msgBox.exec()
                     self.close()
+                    
+                    #initialization of Timestamp form just after user login
+                    
+                    self.timestamp_form = TimestampForm(parentTray = self)
+                    self.timestamp_form.setWindowTitle('Message')
+                    self.timestamp_form.show()
+                    print("message box initiated")
+                  
 #             except Exception as e:
 #                 print ('Invalid data received', e)
 

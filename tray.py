@@ -7,6 +7,7 @@ from Crypto.PublicKey import RSA
 from Crypto import Random
 
 from login import LoginForm
+from timestamp_form import TimestampForm
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -77,6 +78,12 @@ class SystemTrayIcon(QSystemTrayIcon):
         # Set the order of layout and add everything to main menu
         logInButton = mainMenu.addAction("Log in")
         logInButton.triggered.connect(self.show_login)
+        
+        mainMenu.addSeparator()
+        msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
+        msgButton.triggered.connect(self.send_message)
+        
+        
         mainMenu.addSeparator()
         mainMenu.addMenu(subMenu)
         mainMenu.addSeparator()
@@ -89,6 +96,15 @@ class SystemTrayIcon(QSystemTrayIcon):
         
     def show_login(self):
         self.loginForm.show()
+        
+    def send_message(self):
+        
+#         placeholder function for opening timestamp_form
+
+        self.timestamp_form = TimestampForm(parentTray = self)
+        self.timestamp_form.setWindowTitle('Message')
+        self.timestamp_form.show()
+        print("message box opened")
 
 
     def show_token(self):
