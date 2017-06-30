@@ -142,7 +142,7 @@ class LoginForm(QWidget):
             if not password:
                 info_text.append('Password cannot be empty!')
             
-            joined_info_text = '\n'.join(info_text)
+            joined_info_text = '\n \n'.join(info_text)
             
             msgBox.setInformativeText(joined_info_text)
             msgBox.setIcon(QMessageBox.Information)
@@ -153,7 +153,7 @@ class LoginForm(QWidget):
             msgBox.exec()
 
         else:
-            print ('user and pass')
+            
 #             parentTray.showMessage("Can't do that yet",
 #                                    "Sorry {}, but login ins't implemented yet :(".format(username),
 #                                    QSystemTrayIcon.Critical,
@@ -170,7 +170,8 @@ class LoginForm(QWidget):
 #             print ('Len of encrypted data on client:', len(base64_data))
             print('Trying to authenticate on', url) 
             try:
-                response = requests.post(url, {'username' : username, 'password' : password, 'client_public_key' : parentTray.client_rsa.publickey().exportKey()})
+                response = requests.post(url, {'username' : username, 'password' : password, 'client_public_key' : parentTray.client_rsa.publickey().exportKey(), 'uuid' : parentTray.uuid})
+                print(parentTray.uuid)
             except Exception as e:
                 print ('No response, server may be down')
                 
@@ -207,22 +208,10 @@ class LoginForm(QWidget):
                     
                     #initialization of Timestamp form just after user login
                     
-                    print("\nmessage box initiated")
+                    
 
 
-                  
-                    ############################# actually done here and not in tray.py like in issue
-                    
-                    print(username)
-                    self.create_uuid(username)
-                    
-                    #############################
-#             except Exception as e:
-#                 print ('Invalid data received', e)
-    def create_uuid(self,username):
-        
-        id = uuid.uuid3(uuid.NAMESPACE_DNS, username)
-        print("\nThis is unique Id made with combination of NAMESPACE_DNS and username-------->   ",id)
+
 
 
 
