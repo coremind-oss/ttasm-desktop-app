@@ -1,14 +1,18 @@
-import requests, json, base64
+import uuid
+
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QSystemTrayIcon
-from PyQt5 import QtCore
+from PyQt5.QtWidgets import QWidget
+import requests, json, base64
 
-#from utility import encrypt_data
 from timestamp_form import TimestampForm
 
+
+
+#from utility import encrypt_data
 class LoginForm(QWidget):
 
     def __init__(self, parentTray):
@@ -28,7 +32,6 @@ class LoginForm(QWidget):
 
         self.create_ui()
         self.move_to_primary_center()
-        
         
 
 
@@ -208,9 +211,12 @@ class LoginForm(QWidget):
                     self.timestamp_form.setWindowTitle('Message')
                     self.timestamp_form.show()
                     print("message box initiated")
+
+##################################################################
                   
-#             except Exception as e:
-#                 print ('Invalid data received', e)
+
+
+#####################################################################
 
     def cancel(self):
         """Close password input"""

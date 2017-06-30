@@ -1,10 +1,10 @@
 import sys, os, requests
 
+from Crypto import Random
+from Crypto.PublicKey import RSA
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
-from Crypto.PublicKey import RSA
-from Crypto import Random
 
 from login import LoginForm
 from timestamp_form import TimestampForm
@@ -98,14 +98,11 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.loginForm.show()
         
     def send_message(self):
-        
-#         placeholder function for opening timestamp_form
 
         self.timestamp_form = TimestampForm(parentTray = self)
         self.timestamp_form.setWindowTitle('Message')
         self.timestamp_form.show()
         print("message box opened")
-
 
     def show_token(self):
         """Placeholder function"""
