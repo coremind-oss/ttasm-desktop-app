@@ -32,7 +32,7 @@ class LoginForm(QWidget):
 
         self.create_ui()
         self.move_to_primary_center()
-        
+        self.setWindowTitle("Log in")
 
 
     def create_ui(self):
@@ -207,9 +207,6 @@ class LoginForm(QWidget):
                     
                     #initialization of Timestamp form just after user login
                     
-                    self.timestamp_form = TimestampForm(parentTray = self)
-                    self.timestamp_form.setWindowTitle('Message')
-                    self.timestamp_form.show()
                     print("\nmessage box initiated")
 
 

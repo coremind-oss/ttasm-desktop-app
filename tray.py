@@ -28,7 +28,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.create_ui()
         # Keeping reference to LoginForm object so that window wouldn't close
         self.loginForm = LoginForm(parentTray = self)
-        self.loginForm.setWindowTitle("Log in")
+        self.timestamp_form = TimestampForm(parentTray = self)
         self.show_login()
 
     def get_server_public_key(self):
@@ -81,7 +81,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         mainMenu.addSeparator()
         msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
-        msgButton.triggered.connect(self.send_message)
+        msgButton.triggered.connect(self.show_timestamp_form)
         
         
         mainMenu.addSeparator()
@@ -97,12 +97,9 @@ class SystemTrayIcon(QSystemTrayIcon):
     def show_login(self):
         self.loginForm.show()
         
-    def send_message(self):
-
-        self.timestamp_form = TimestampForm(parentTray = self)
-        self.timestamp_form.setWindowTitle('Message')
+    def show_timestamp_form(self):
         self.timestamp_form.show()
-        print("message box opened")
+
 
     def show_token(self):
         """Placeholder function"""

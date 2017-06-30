@@ -20,17 +20,19 @@ class TimestampForm(QWidget):
                             QtCore.Qt.CustomizeWindowHint |
                             QtCore.Qt.WindowTitleHint)
         
+        self.setWindowTitle('Message')
+        
         self.create_ui()
 #         self.center_position()
         
     def create_ui(self):
         
-        msgLabel = QLabel('What are you working on ?')
+        msgLabel = QLabel('What are you working on?')
         self.message = QTextEdit()
         
         self.message.setPlaceholderText('Enter text here...')
         
-        sendButton = QPushButton('Send !')
+        sendButton = QPushButton('Send')
         cancelButton = QPushButton('Cancel')
         
         cancelButton.clicked.connect(self.cancel)
@@ -51,5 +53,4 @@ class TimestampForm(QWidget):
         
         
     def cancel(self):
-        self.close()
-        print('Message box closed')
+        self.hide()
