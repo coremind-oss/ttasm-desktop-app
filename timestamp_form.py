@@ -52,3 +52,4 @@ class TimestampForm(QWidget):
         
     def cancel(self):
         self.close()
+        print('Message box closed')

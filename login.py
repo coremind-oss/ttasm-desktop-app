@@ -210,13 +210,24 @@ class LoginForm(QWidget):
                     self.timestamp_form = TimestampForm(parentTray = self)
                     self.timestamp_form.setWindowTitle('Message')
                     self.timestamp_form.show()
-                    print("message box initiated")
+                    print("\nmessage box initiated")
 
-##################################################################
+
                   
+                    ############################# actually done here and not in tray.py like in issue
+                    
+                    print(username)
+                    self.create_uuid(username)
+                    
+                    #############################
+#             except Exception as e:
+#                 print ('Invalid data received', e)
+    def create_uuid(self,username):
+        
+        id = uuid.uuid3(uuid.NAMESPACE_DNS, username)
+        print("\nThis is unique Id made with combination of NAMESPACE_DNS and username-------->   ",id)
 
 
-#####################################################################
 
     def cancel(self):
         """Close password input"""
