@@ -1,12 +1,13 @@
-import sys, os, requests
+import sys, os, requests, uuid
 
+from Crypto import Random
+from Crypto.PublicKey import RSA
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
-from Crypto.PublicKey import RSA
-from Crypto import Random
 
 from login import LoginForm
+from timestamp_form import TimestampForm
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -23,12 +24,15 @@ class SystemTrayIcon(QSystemTrayIcon):
 
 #         self.user = ''
         self.get_server_public_key()
+        self.uuid = self.create_uuid('TTASM')
+        print('UUID {} created'.format(self.uuid))
         self.create_private_key()
         self.create_ui()
         # Keeping reference to LoginForm object so that window wouldn't close
         self.loginForm = LoginForm(parentTray = self)
-        self.loginForm.setWindowTitle("Log in")
+        self.timestamp_form = TimestampForm(parentTray = self)
         self.show_login()
+        
 
     def get_server_public_key(self):
         #get server private key 
@@ -77,6 +81,12 @@ class SystemTrayIcon(QSystemTrayIcon):
         # Set the order of layout and add everything to main menu
         logInButton = mainMenu.addAction("Log in")
         logInButton.triggered.connect(self.show_login)
+        
+        mainMenu.addSeparator()
+        msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
+        msgButton.triggered.connect(self.show_timestamp_form)
+        
+        
         mainMenu.addSeparator()
         mainMenu.addMenu(subMenu)
         mainMenu.addSeparator()
@@ -84,11 +94,17 @@ class SystemTrayIcon(QSystemTrayIcon):
         exitButton.triggered.connect(self.quit)
 
         self.setContextMenu(mainMenu)
-
+    
+    def create_uuid(self, UUID_string):
+        
+        return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
 
         
     def show_login(self):
         self.loginForm.show()
+        
+    def show_timestamp_form(self):
+        self.timestamp_form.show()
 
 
     def show_token(self):

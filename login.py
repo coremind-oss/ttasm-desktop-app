@@ -1,14 +1,18 @@
-import requests, json, base64
+import uuid
+
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QSystemTrayIcon
-from PyQt5 import QtCore
+from PyQt5.QtWidgets import QWidget
+import requests, json, base64
+
+from timestamp_form import TimestampForm
+
+
 
 #from utility import encrypt_data
-
-
 class LoginForm(QWidget):
 
     def __init__(self, parentTray):
@@ -28,6 +32,7 @@ class LoginForm(QWidget):
 
         self.create_ui()
         self.move_to_primary_center()
+        self.setWindowTitle("Log in")
 
 
     def create_ui(self):
@@ -137,7 +142,7 @@ class LoginForm(QWidget):
             if not password:
                 info_text.append('Password cannot be empty!')
             
-            joined_info_text = '\n'.join(info_text)
+            joined_info_text = '\n \n'.join(info_text)
             
             msgBox.setInformativeText(joined_info_text)
             msgBox.setIcon(QMessageBox.Information)
@@ -148,7 +153,7 @@ class LoginForm(QWidget):
             msgBox.exec()
 
         else:
-            print ('user and pass')
+            
 #             parentTray.showMessage("Can't do that yet",
 #                                    "Sorry {}, but login ins't implemented yet :(".format(username),
 #                                    QSystemTrayIcon.Critical,
@@ -165,7 +170,8 @@ class LoginForm(QWidget):
 #             print ('Len of encrypted data on client:', len(base64_data))
             print('Trying to authenticate on', url) 
             try:
-                response = requests.post(url, {'username' : username, 'password' : password, 'client_public_key' : parentTray.client_rsa.publickey().exportKey()})
+                response = requests.post(url, {'username' : username, 'password' : password, 'client_public_key' : parentTray.client_rsa.publickey().exportKey(), 'uuid' : parentTray.uuid})
+                print(parentTray.uuid)
             except Exception as e:
                 print ('No response, server may be down')
                 
@@ -199,8 +205,15 @@ class LoginForm(QWidget):
                     msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                     msgBox.exec()
                     self.close()
-#             except Exception as e:
-#                 print ('Invalid data received', e)
+                    
+                    #initialization of Timestamp form just after user login
+                    
+                    
+
+
+
+
+
 
     def cancel(self):
         """Close password input"""

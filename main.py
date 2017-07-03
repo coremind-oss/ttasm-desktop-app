@@ -1,11 +1,12 @@
 import sys, os, requests
 from PyQt5.QtWidgets import QApplication
 import psutil
-# from Crypto.PublicKey import RSA
-# from Crypto import Random
+from Crypto.PublicKey import RSA
+from Crypto import Random
 from Crypto.Hash import SHA256
 
 from tray import SystemTrayIcon
+
 
 # global SERVER_URL
 # global HTTP_PROTOCOL
