@@ -48,7 +48,7 @@ class TimestampForm(QWidget):
         formBox.addRow(self.message)
         
         buttonRow = QHBoxLayout()
-#         buttonRow.addWidget(sendButton)
+        buttonRow.addWidget(sendButton)
         buttonRow.addWidget(cancelButton)
         
         formBox.addRow(buttonRow)
