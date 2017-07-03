@@ -5,11 +5,11 @@ from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 
-
 from datetime import datetime
 import json
 import pytz
 import requests
+
 
 
 class TimestampForm(QWidget):
@@ -38,7 +38,7 @@ class TimestampForm(QWidget):
         
         self.message.setPlaceholderText('Enter text here...')
         
-#         sendButton = QPushButton('Send')
+        sendButton = QPushButton('Send')
         cancelButton = QPushButton('Cancel')
         
         cancelButton.clicked.connect(self.cancel)
