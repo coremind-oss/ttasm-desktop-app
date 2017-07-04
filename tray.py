@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
 
 from login import LoginForm
-from timestamp_form import TimestampForm
+from timestamp.form import TimestampForm
 
 
 class SystemTrayIcon(QSystemTrayIcon):

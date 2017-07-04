@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import QLabel, QDesktopWidget, QTextEdit, QMessageBox
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
-
 import pytz
 import requests
 
@@ -64,30 +63,17 @@ class TimestampForm(QWidget):
         
         self.setFixedSize(self.height, self.width)
         
-#     Finding a desktop IP and from that find a Desktop's timezone   
+#     find a Desktop's timezone   
     def desktop_timezone(self):
-     
-    # getting desktop IP address with ipify api
-         
-        my_ip = "https://api.ipify.org"
-        response_ip = requests.get(my_ip)
-        print("User's IP is {}".format(response_ip.text))
-         
-    # getting json object including timezone for current desktop with ip-api
-         
-        url = "http://freegeoip.net/json/{}".format(response_ip.text)
-#         url = "http://ip-api.com/json/{}".format(response_ip.text)
+        url = "http://freegeoip.net/json"
         response = requests.get(url)
         print("\nReceived JSON object : {} ".format(response.text))
-        response_text = response.text
-        response_json = json.JSONDecoder().decode(response_text)
-    #     print(type(response_json))
-        current_timezone = response_json['time_zone']
-        print("\nUser's timezone is: {}".format(current_timezone))
-    
+        response_json = json.JSONDecoder().decode(response.text)
+        print("\nUser's timezone is: {}".format(response_json['time_zone']))
+        
     # Provide a local time according to timezone
          
-        desktop_loc_time = pytz.timezone(current_timezone)
+        desktop_loc_time = pytz.timezone(response_json['time_zone'])
         fmt = '%Y-%m-%d %H:%M:%S %Z%z'
         
         self.loc_dt = desktop_loc_time.localize(datetime.now())

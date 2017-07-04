@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QSystemTrayIcon
 from PyQt5.QtWidgets import QWidget
 import requests, json, base64
 
-from timestamp_form import TimestampForm
+from timestamp.form import TimestampForm
 
 
 
