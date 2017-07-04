@@ -1,13 +1,13 @@
+from datetime import datetime
+import json
+
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.Qt import QFormLayout, QHBoxLayout
+from PyQt5.Qt import QFormLayout, QHBoxLayout, QKeySequence
 from PyQt5.QtWidgets import QLabel, QDesktopWidget, QTextEdit, QMessageBox
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 
-
-from datetime import datetime
-import json
 import pytz
 import requests
 
@@ -19,12 +19,13 @@ class TimestampForm(QWidget):
         
         self.parentTray = parentTray
         
-        self.height = 400
-        self.width =  150
+        self.height = 300
+        self.width =  100
         
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint |
                             QtCore.Qt.CustomizeWindowHint |
                             QtCore.Qt.WindowTitleHint)
+     
         
         self.setWindowTitle('Message')
         
@@ -34,16 +35,21 @@ class TimestampForm(QWidget):
         
     def create_ui(self):
         
-        msgLabel = QLabel('What were you doing in the period?')
+        msgLabel = QLabel('What were you doing in the period < time2 - time1 >?')
         self.message = QLineEdit()
         
         self.message.setPlaceholderText('Enter text here...')
         
-        sendButton = QPushButton('Send')
-        cancelButton = QPushButton('Cancel')
+        sendButton = QPushButton('Send (enter)')
+        cancelButton = QPushButton('Cancel (escape)')
+        
         
         cancelButton.clicked.connect(self.cancel)
+        
+        
         sendButton.clicked.connect(lambda: self.send_timestamp(self.message.text()))
+        self.message.returnPressed.connect(lambda: self.send_timestamp(self.message.text()))
+        
         formBox = QFormLayout()
         formBox.addRow(msgLabel)
         formBox.addRow(self.message)
@@ -69,13 +75,14 @@ class TimestampForm(QWidget):
          
     # getting json object including timezone for current desktop with ip-api
          
-        url = "http://ip-api.com/json/{}".format(response_ip.text)
+        url = "http://freegeoip.net/json/{}".format(response_ip.text)
+#         url = "http://ip-api.com/json/{}".format(response_ip.text)
         response = requests.get(url)
         print("\nReceived JSON object : {} ".format(response.text))
         response_text = response.text
         response_json = json.JSONDecoder().decode(response_text)
     #     print(type(response_json))
-        current_timezone = response_json['timezone']
+        current_timezone = response_json['time_zone']
         print("\nUser's timezone is: {}".format(current_timezone))
     
     # Provide a local time according to timezone
@@ -135,23 +142,25 @@ class TimestampForm(QWidget):
 #             print('THIS IS RESPONSE\n\n{}'.format(response.text))
 
             
-#             if response.text == 'Successfully sent message':
-#                 msgBox = QMessageBox()
-#                 msgBox.setInformativeText('You sent a message')
-#                 msgBox.setIcon(QMessageBox.Information)
-#                 msgBox.setWindowTitle("Message")
-#     
-#                 msgBox.setStandardButtons(QMessageBox.Ok)
-#                 msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-#                 msgBox.exec()
-#                 self.close() 
-            
+            if response.text == 'Server receive message':
+                msgBox = QMessageBox()
+                msgBox.setInformativeText('Server receive message \n-> {} <- \npending writing into databaze'.format(message))
+                msgBox.setIcon(QMessageBox.Information)
+                msgBox.setWindowTitle("Message")
+     
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msgBox.exec()
+                self.close() 
+                
+
+    def keyPressEvent(self, event):
+        
+        if event.key() == QtCore.Qt.Key_Escape:
+            self.close()
         
 
-
-        
-        
-
-  
     def cancel(self):
+        self.message.setPlaceholderText('Enter text here...')
         self.hide()
+    
