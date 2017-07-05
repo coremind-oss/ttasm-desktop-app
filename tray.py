@@ -44,13 +44,15 @@ class SystemTrayIcon(QSystemTrayIcon):
             response = requests.get(url)
         except:
             print ('No response, server may be down')
-
-        if response.status_code == 200:
-                self.server_rsa_pub  = RSA.importKey(response.text)
-                print ('Server private key aquired')
-        else:
-            print ('Server failed to provide public key')
-
+        try:
+            if response.status_code == 200:
+                    self.server_rsa_pub  = RSA.importKey(response.text)
+                    print ('Server private key aquired')
+            else:
+                print ('Server failed to provide public key')
+        except:
+            print("\nServer is not responding")
+            self.quit()
 
     def create_private_key(self):
         #Create new client RSA private key, public key and public key hash and store them to disk
