@@ -118,13 +118,26 @@ class TimestampForm(QWidget):
              
             print("Trying to send data to {}".format(url))
             
+
+            client = requests.session()
+            client.get(url)
             try:
-                response = requests.post(url, {'message': message, 'timestamp': self.formated_time})
-                
-            
+                response = client.post(
+                    url,
+                    headers = {
+                        'X-CSRFToken':client.cookies.get('csrftoken'),
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data={
+                        'message': message,
+                        'timestamp': self.formated_time
+                    }
+                )
+                 
+             
             except Exception as e:
                 print('there is no proper server')
-            print(response.text)   
+            print(response.text)
 #             print('THIS IS RESPONSE\n\n{}'.format(response.text))
 
             
