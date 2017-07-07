@@ -11,7 +11,6 @@ import requests, json, base64
 from timestamp.form import TimestampForm
 
 
-
 #from utility import encrypt_data
 class LoginForm(QWidget):
 
@@ -206,10 +205,24 @@ class LoginForm(QWidget):
                     msgBox.exec()
                     self.close()
                     
+################### Trying to get client session csrf token                 
+                    
+                    client = requests.Session()
+                    
+                    url = 'http://127.0.0.1:8000/'
+                    client.get(url)
+                    
+                    csrf = client.cookies['csrftoken']
+                    data = dict(csrfmiddlewaretoken = csrf, username = self.username.text())
+                    
+                    response = client.post(url, data=data, headers={'Refferer':url})
+                    
+                    
+                    print('\nCSRF client token is: {}'.format(client.cookies.get_dict()['csrftoken']))
                     #initialization of Timestamp form just after user login
                     
                     
-
+####################################################
 
 
 
