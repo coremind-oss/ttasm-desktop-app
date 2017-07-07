@@ -1,18 +1,9 @@
-import sys, os, requests
+import sys, os
+
 from PyQt5.QtWidgets import QApplication
 import psutil
-from Crypto.PublicKey import RSA
-from Crypto import Random
-from Crypto.Hash import SHA256
 
 from tray import SystemTrayIcon
-
-
-# global SERVER_URL
-# global HTTP_PROTOCOL
-
-SERVER_URL = '127.0.0.1:8000'
-HTTP_PROTOCOL = 'HTTP' # http_protocol would represent HTTP or HTTPS
 
 
 def spawnPIDfile(currentProc):
@@ -50,60 +41,10 @@ def alreadyRunnigPU():
             if os.path.isfile('pid'):
                 os.remove('pid') 
             return spawnPIDfile(currentProc)
-
-
-def start_up():
-    pass
-#     update_server_public_key(HTTP_PROTOCOL, SERVER_URL)
-#     current_user = 'luka'
-#     current_password = '1234567a'
-#     check_client_key(current_user)
-#     check_credentials()
-
-
-def check_credentials():
-    #Check if credentials file present. If so, show auto-filled login form, else go to sign up form.
-    pass
-
-def check_client_key(current_user, http_protocol = HTTP_PROTOCOL, server_url = SERVER_URL):
-    if not os.path.exists('./clientdata'):
-        os.makedirs('./clientdata')
     
-    if not os.path.exists('./clientdata/client_RSA'):    
-        cl_rsa = create_private_key()
-     
-    #send client key server for comparing
-    url = '{}://{}/client_key/'.format(http_protocol, server_url)
-    pub_key = open('./clientdata/client_RSA.pub', 'r').read()
-    print('trying to send client key to server:', url) 
-
-    try:
-        response = requests.post(url, data={'user' : current_user, 'pub_key': pub_key})
-        print ('Client public key sent to server')
-    except Exception as e:
-        print (e)
-    
-
-# def create_private_key():
-#     #Create new client RSA private key, public key and public key hash and store them to disk
-#     random_generator = Random.new().read
-#     cl_rsa = RSA.generate(2048, random_generator)
-#     with open('./clientdata/client_RSA', 'wb') as f:
-#         f.write(cl_rsa.exportKey())
-#     with open('./clientdata/client_RSA.pub', 'wb') as f:
-#         f.write(cl_rsa.publickey().exportKey())
-#     with open('./clientdata/client_RSA.hash', 'w') as f:
-#         f.write(SHA256.new(cl_rsa.publickey().exportKey()).hexdigest())
-#     
-#     print ('Client keys created')
-#     return cl_rsa
-
-
-
 def main():
     app = QApplication([])
     app.setQuitOnLastWindowClosed(False)
-    start_up()
     systemTrayIcon = SystemTrayIcon()
     systemTrayIcon.show()
     sys.exit(app.exec_())

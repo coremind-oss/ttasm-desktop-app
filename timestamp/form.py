@@ -1,19 +1,18 @@
 from datetime import datetime
-import json
 
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.Qt import QFormLayout, QHBoxLayout, QKeySequence
-from PyQt5.QtWidgets import QLabel, QDesktopWidget, QTextEdit, QMessageBox
+from PyQt5 import QtCore
+from PyQt5.Qt import QFormLayout, QHBoxLayout
+from PyQt5.QtWidgets import QLabel, QMessageBox
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 import pytz
-import requests
+from timestamp.utils import human_time
 
 
 class TimestampForm(QWidget):
     
-    def __init__(self,parentTray):
+    def __init__(self, parentTray):
         super(TimestampForm,self).__init__()
         
         self.parentTray = parentTray
@@ -34,7 +33,7 @@ class TimestampForm(QWidget):
         
     def create_ui(self):
         
-        msgLabel = QLabel('What were you doing in the period < time2 - time1 >?')
+        msgLabel = QLabel('What were you doing for the past {}?'.format(self.calc_time_spent()))
         self.message = QLineEdit()
         
         self.message.setPlaceholderText('Enter text here...')
@@ -62,32 +61,28 @@ class TimestampForm(QWidget):
         self.setLayout(formBox)
         
         self.setFixedSize(self.height, self.width)
-        
-#     find a Desktop's timezone   
-    def desktop_timezone(self):
-        url = "http://freegeoip.net/json"
-        response = requests.get(url)
-        print("\nReceived JSON object : {} ".format(response.text))
-        response_json = json.JSONDecoder().decode(response.text)
-        print("\nUser's timezone is: {}".format(response_json['time_zone']))
-        
-    # Provide a local time according to timezone
-         
-        desktop_loc_time = pytz.timezone(response_json['time_zone'])
-        fmt = '%Y-%m-%d %H:%M:%S %Z%z'
-        
-        self.loc_dt = desktop_loc_time.localize(datetime.now())
-        
-        self.formated_time = self.loc_dt.strftime(fmt)
-        
-        return self.formated_time
-        
-#         print ("\nLocal time for desktop location is: {}".format(self.formated_time))
 
+    def calc_time_spent(self):
+        if not hasattr(self.parentTray, 'last_timestamp'):
+            url = self.parentTray.getURL('/get_last_timestamp/')
+            response = self.parentTray.http_client(url)
+#    TODO: this needs to be parsed from the timestamp format used on the server
+# it will also be in UTC and needs to be converted into the desktop's timezone
+#             previousTime = datetime.strptime(response.text, '%Y-%m-%d').astimezone(tzinfo-object)
+        else:
+            previousTime = self.parentTray.last_timestamp
+        currentTime = pytz.timezone(self.parentTray.timezone)
+        time_spent = currentTime - previousTime
+        return human_time(time_spent)
+
+    def get_base_date(self):
+        desktop_loc_time = pytz.timezone(self.parentTray.timezone)
+        fmt = '%Y-%m-%d'
         
+        loc_dt = desktop_loc_time.localize(datetime.now())
+        return loc_dt.strftime(fmt)
 
     def send_timestamp(self, message):
-
         if not message:
      
             msgBox = QMessageBox()
@@ -106,31 +101,24 @@ class TimestampForm(QWidget):
                 msgBox.exec()
      
         else:
-            self.desktop_timezone()
-            
-            print('\nThis is the local time of the user: {} '.format(self.formated_time))
-
+            base_date = self.get_base_date()
+            print('\nThis is the local time of the user: {} '.format(current_time))
             print('\nSent message is: {}'.format(message))
 
-            
-
-            url = '{}://{}/timestamp_message_handling/'.format('HTTP','127.0.0.1:8000')
+            url = self.parentTray.getURL('/timestamp_message_handling/')
              
             print("Trying to send data to {}".format(url))
-            
 
-            client = requests.session()
-            client.get(url)
             try:
-                response = client.post(
+                response = self.parentTray.http_client.post(
                     url,
                     headers = {
-                        'X-CSRFToken':client.cookies.get('csrftoken'),
+                        'X-CSRFToken': self.parentTray.http_client.cookies.get('csrftoken'),
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     data={
                         'message': message,
-                        'timestamp': self.formated_time
+                        'base_date': base_date,
                     }
                 )
                  

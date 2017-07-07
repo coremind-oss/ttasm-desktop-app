@@ -1,15 +1,8 @@
-import uuid
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
-from PyQt5.QtWidgets import QSystemTrayIcon
 from PyQt5.QtWidgets import QWidget
-import requests, json, base64
-
-from timestamp.form import TimestampForm
-
 
 #from utility import encrypt_data
 class LoginForm(QWidget):
@@ -37,13 +30,13 @@ class LoginForm(QWidget):
     def create_ui(self):
         """Create user interface for login popup window"""
 
-        usernameLabel = QLabel("Username:")
+        emailLabel = QLabel("Email:")
         passwordLabel = QLabel("Password:")
-        self.username = QLineEdit()
+        self.email = QLineEdit()
         self.password = QLineEdit()
-        print (self.username.whatsThis())
+        print (self.email.whatsThis())
 
-        self.username.setPlaceholderText("Enter your username")
+        self.email.setPlaceholderText("Enter your email")
         self.password.setPlaceholderText("Enter your password")
         
 
@@ -54,26 +47,26 @@ class LoginForm(QWidget):
         submitButton = QPushButton("Submit")
 
         # Usign lambda because Qt doesn't allow for arguments to by passed to slots
-        # And we want to keep username and password as a private variables so we
+        # And we want to keep email and password as a private variables so we
         # don't want to make them direct members of Class and call them with self
         # directly inside self.submit() function
         submitButton.clicked.connect(lambda: self.submit(self.parentTray,
-                                                         self.username.text(),
+                                                         self.email.text(),
                                                          self.password.text()))
 
         # Enter pressed inside password line edit
         self.password.returnPressed.connect(lambda: self.submit(self.parentTray,
-                                                           self.username.text(),
+                                                           self.email.text(),
                                                            self.password.text()))
         
-        self.username.returnPressed.connect(self.password.setFocus)
+        self.email.returnPressed.connect(self.password.setFocus)
         
         cancelButton = QPushButton("Cancel")
         cancelButton.clicked.connect(self.cancel)
 
         #Design a form layout
         formBox = QFormLayout()
-        formBox.addRow(usernameLabel, self.username)
+        formBox.addRow(emailLabel, self.email)
         formBox.addRow(passwordLabel, self.password)
         
         # sign up label / link
@@ -109,7 +102,7 @@ class LoginForm(QWidget):
 
         try:
             last_user = open ('last_user', 'r').read()
-            self.username.setText(last_user)
+            self.email.setText(last_user)
             self.password.setFocus()
         except:
             pass
@@ -129,15 +122,15 @@ class LoginForm(QWidget):
                   rectScreenPrimarty.center().y() - self.fixedHeight/2)
 
 
-    def submit(self, parentTray, username, password):
+    def submit(self, parentTray, email, password):
         """Send data to server."""
         
-        if not username or not password:
+        if not email or not password:
             
             msgBox = QMessageBox()
             info_text = []
-            if not username:
-                info_text.append('Username cannot be empty!')
+            if not email:
+                info_text.append('Email cannot be empty!')
             if not password:
                 info_text.append('Password cannot be empty!')
             
@@ -152,33 +145,29 @@ class LoginForm(QWidget):
             msgBox.exec()
 
         else:
-            
-#             parentTray.showMessage("Can't do that yet",
-#                                    "Sorry {}, but login ins't implemented yet :(".format(username),
-#                                    QSystemTrayIcon.Critical,
-#                                    8000)
-            url = '{}://{}/desktop-login/'.format('HTTP', '127.0.0.1:8000')
-#             data=json.dumps({'user' : username, 'pass': password})
-#             uname= username
-#             print ('json:', data)
-#             
-#             with open('./serverdata/server_id_rsa.pub', 'r') as file:
-#                 server_pub = file.read()
-#             encrypted_data = encrypt_data(data, server_pub)
-#             base64_data = base64.b64encode(encrypted_data)
-#             print ('Len of encrypted data on client:', len(base64_data))
-            print('Trying to authenticate on', url) 
+            url = parentTray.getURL('/accounts/login/')
+            print('Trying to authenticate on', url)
             try:
-                response = requests.post(url, {'username' : username, 'password' : password, 'client_public_key' : parentTray.client_rsa.publickey().exportKey(), 'uuid' : parentTray.uuid})
+                response = parentTray.http_client.post(
+                    url,
+                    headers = {
+                        'X-CSRFToken':parentTray.http_client.cookies.get('csrftoken'),
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data={
+                        'login' : email,
+                        'password' : password,
+                        'client_public_key' : parentTray.client_rsa.publickey().exportKey(),
+                        'uuid' : parentTray.uuid
+                    }
+                )
                 print(parentTray.uuid)
             except Exception as e:
                 print ('No response, server may be down')
-                
-            print ('response:', response.text, type(response.text))     
                   
-            if response.text == 'Invalid user/pass, access denied':
+            if response.status_code != 200:
                 msgBox = QMessageBox()
-                msgBox.setInformativeText('Invalid username and/or password')
+                msgBox.setInformativeText('Invalid email and/or password')
                 msgBox.setIcon(QMessageBox.Information)
                 msgBox.setWindowTitle("Oops!")
     
@@ -189,44 +178,17 @@ class LoginForm(QWidget):
                 return False
             
             else:
-#             try:
-                response_json = json.loads(str(response.text))
-                if response_json['status'] == 'ok':
-                    parentTray.token = response_json['token']
-                    with open ('last_user' ,'w') as f:
-                        f.write(username) 
-                    msgBox = QMessageBox()
-                    msgBox.setInformativeText('You are now logged in as {}'.format(username))
-                    msgBox.setIcon(QMessageBox.Information)
-                    msgBox.setWindowTitle("Log-in")
-        
-                    msgBox.setStandardButtons(QMessageBox.Ok)
-                    msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-                    msgBox.exec()
-                    self.close()
-                    
-################### Trying to get client session csrf token                 
-                    
-                    client = requests.Session()
-                    
-                    url = 'http://127.0.0.1:8000/'
-                    client.get(url)
-                    
-                    csrf = client.cookies['csrftoken']
-                    data = dict(csrfmiddlewaretoken = csrf, username = self.username.text())
-                    
-                    response = client.post(url, data=data, headers={'Refferer':url})
-                    
-                    
-                    print('\nCSRF client token is: {}'.format(client.cookies.get_dict()['csrftoken']))
-                    #initialization of Timestamp form just after user login
-                    
-                    
-####################################################
-
-
-
-
+                with open ('last_user' ,'w') as f:
+                    f.write(email) 
+                msgBox = QMessageBox()
+                msgBox.setInformativeText('You are now logged in as {}'.format(email))
+                msgBox.setIcon(QMessageBox.Information)
+                msgBox.setWindowTitle("Log-in")
+    
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msgBox.exec()
+                self.close()
 
     def cancel(self):
         """Close password input"""

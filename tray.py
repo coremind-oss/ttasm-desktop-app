@@ -1,3 +1,4 @@
+import json
 import sys, os, requests, uuid
 
 from Crypto import Random
@@ -7,22 +8,21 @@ from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
 
 from login import LoginForm
+from settings import HTTP_PROTOCOL
+from settings import SERVER_URL
 from timestamp.form import TimestampForm
 
 
 class SystemTrayIcon(QSystemTrayIcon):
 
-
-    def __init__(self, ):
-        
-        self.SERVER_URL = '127.0.0.1:8000'
-        self.HTTP_PROTOCOL = 'HTTP' # http_protocol would represent HTTP or HTTPS
-        
+    def __init__(self):
         icon = QIcon('icons/icon-placeholder_128x128.png')
         super(SystemTrayIcon, self).__init__(icon)
         
+        self.http_client = requests.Session()
+        self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
 
-#         self.user = ''
+        self.get_desktop_timezone()
         self.get_server_public_key()
         self.uuid = self.create_uuid('TTASM')
         print('UUID {} created'.format(self.uuid))
@@ -33,15 +33,23 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.timestamp_form = TimestampForm(parentTray = self)
         self.show_login()
         
+    def getURL(self, path):
+        return '{}{}'.format(self.base_url, path)
+
+    # Find Desktop's timezone   
+    def get_desktop_timezone(self):
+        response = requests.get('http://freegeoip.net/json')
+        response_json = json.JSONDecoder().decode(response.text)
+        self.timezone = response_json['time_zone']
 
     def get_server_public_key(self):
         #get server private key 
 
-        url = '{}://{}/public_key/'.format(self.HTTP_PROTOCOL, self.SERVER_URL)
+        url = self.getURL('/public_key/')
         print('Trying to get the public key from:', url) 
         
         try:
-            response = requests.get(url)
+            response = self.http_client.get(url)
         except:
             print ('No response, server may be down')
         try:
