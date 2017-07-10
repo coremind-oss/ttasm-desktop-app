@@ -33,7 +33,8 @@ class TimestampForm(QWidget):
         
     def create_ui(self):
         
-        msgLabel = QLabel('What were you doing for the past {}?'.format(self.calc_time_spent()))
+        msgLabel = QLabel('What were you doing for the past')
+#         msgLabel = QLabel('What were you doing for the past {}?'.format(self.calc_time_spent()))
         self.message = QLineEdit()
         
         self.message.setPlaceholderText('Enter text here...')
@@ -64,11 +65,15 @@ class TimestampForm(QWidget):
 
     def calc_time_spent(self):
         if not hasattr(self.parentTray, 'last_timestamp'):
+            print('get server time attempt')
             url = self.parentTray.getURL('/get_last_timestamp/')
             response = self.parentTray.http_client(url)
+
 #    TODO: this needs to be parsed from the timestamp format used on the server
 # it will also be in UTC and needs to be converted into the desktop's timezone
 #             previousTime = datetime.strptime(response.text, '%Y-%m-%d').astimezone(tzinfo-object)
+            print(response)
+        
         else:
             previousTime = self.parentTray.last_timestamp
         currentTime = pytz.timezone(self.parentTray.timezone)
@@ -102,7 +107,7 @@ class TimestampForm(QWidget):
      
         else:
             base_date = self.get_base_date()
-            print('\nThis is the local time of the user: {} '.format(current_time))
+            print('\nThis is the local time of the user: {} '.format(base_date))
             print('\nSent message is: {}'.format(message))
 
             url = self.parentTray.getURL('/timestamp_message_handling/')
@@ -118,7 +123,7 @@ class TimestampForm(QWidget):
                     },
                     data={
                         'message': message,
-                        'base_date': base_date,
+                        'base_date': base_date
                     }
                 )
                  
