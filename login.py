@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
 
+
+
 #from utility import encrypt_data
 class LoginForm(QWidget):
 
@@ -178,6 +180,7 @@ class LoginForm(QWidget):
                 return False
             
             else:
+                parentTray.change_icon_on_login()
                 with open ('last_user' ,'w') as f:
                     f.write(email) 
                 msgBox = QMessageBox()
@@ -189,6 +192,8 @@ class LoginForm(QWidget):
                 msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 msgBox.exec()
                 self.close()
+
+
 
     def cancel(self):
         """Close password input"""

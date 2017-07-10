@@ -16,8 +16,11 @@ from timestamp.form import TimestampForm
 class SystemTrayIcon(QSystemTrayIcon):
 
     def __init__(self):
-        icon = QIcon('icons/icon-placeholder_128x128.png')
-        super(SystemTrayIcon, self).__init__(icon)
+        QSystemTrayIcon.__init__(self)
+
+        self.setIcon(QIcon('icons/icon-placeholder_128x128_red.png'))
+#         icon = QIcon('icons/icon-placeholder_128x128_red.png')
+#         super(SystemTrayIcon, self).__init__(icon)
         
         self.http_client = requests.Session()
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
@@ -41,7 +44,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         response = requests.get('http://freegeoip.net/json')
         response_json = json.JSONDecoder().decode(response.text)
         self.timezone = response_json['time_zone']
-
+    
     def get_server_public_key(self):
         #get server private key 
 
@@ -109,6 +112,9 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
 
+    def change_icon_on_login(self):
+        self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
+        
         
     def show_login(self):
         self.loginForm.show()
