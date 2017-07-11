@@ -24,9 +24,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         self.http_client = requests.Session()
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
-
         self.set_desktop_timezone()
-        self.verify_base_date()
+
         self.set_server_public_key()
         self.uuid = self.create_uuid('TTASM')
         print('UUID {} created'.format(self.uuid))
@@ -47,7 +46,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.timezone = response_json['time_zone']
 
     def verify_base_date(self):
-        url = self.getURL('/init_base_date/')
+        url = self.getURL('/verify_base_date/?timezone={}'.format(self.timezone))
         try:
             response = self.http_client.get(url)
             if response.status_code != 200:

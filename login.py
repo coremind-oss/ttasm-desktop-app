@@ -181,6 +181,7 @@ class LoginForm(QWidget):
             
             else:
                 parentTray.change_icon_on_login()
+                parentTray.verify_base_date()
                 with open ('last_user' ,'w') as f:
                     f.write(email) 
                 msgBox = QMessageBox()

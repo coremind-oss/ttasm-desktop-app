@@ -80,13 +80,6 @@ class TimestampForm(QWidget):
         time_spent = currentTime - previousTime
         return human_time(time_spent)
 
-    def get_base_date(self):
-        desktop_loc_time = pytz.timezone(self.parentTray.timezone)
-        fmt = '%Y-%m-%d'
-        
-        loc_dt = desktop_loc_time.localize(datetime.now())
-        return loc_dt.strftime(fmt)
-
     def send_timestamp(self, message):
         if not message:
      
@@ -106,8 +99,6 @@ class TimestampForm(QWidget):
                 msgBox.exec()
      
         else:
-            base_date = self.get_base_date()
-            print('\nThis is the local time of the user: {} '.format(base_date))
             print('\nSent message is: {}'.format(message))
 
             url = self.parentTray.getURL('/timestamp_message_handling/')
@@ -123,7 +114,7 @@ class TimestampForm(QWidget):
                     },
                     data={
                         'message': message,
-                        'base_date': base_date
+                        'timezone': self.parentTray.timezone,
                     }
                 )
                  
