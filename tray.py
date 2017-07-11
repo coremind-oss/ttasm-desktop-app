@@ -25,8 +25,9 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.http_client = requests.Session()
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
 
-        self.get_desktop_timezone()
-        self.get_server_public_key()
+        self.set_desktop_timezone()
+        self.verify_base_date()
+        self.set_server_public_key()
         self.uuid = self.create_uuid('TTASM')
         print('UUID {} created'.format(self.uuid))
         self.create_private_key()
@@ -40,12 +41,23 @@ class SystemTrayIcon(QSystemTrayIcon):
         return '{}{}'.format(self.base_url, path)
 
     # Find Desktop's timezone   
-    def get_desktop_timezone(self):
+    def set_desktop_timezone(self):
         response = requests.get('http://freegeoip.net/json')
         response_json = json.JSONDecoder().decode(response.text)
         self.timezone = response_json['time_zone']
-    
-    def get_server_public_key(self):
+
+    def verify_base_date(self):
+        url = self.getURL('/init_base_date/')
+        try:
+            response = self.http_client.get(url)
+            if response.status_code != 200:
+                raise Exception('Base date not set properly')
+            else:
+                print('DailyActivity object base_date verified')
+        except:
+            print ('No response, server may be down')
+
+    def set_server_public_key(self):
         #get server private key 
 
         url = self.getURL('/public_key/')
@@ -55,10 +67,11 @@ class SystemTrayIcon(QSystemTrayIcon):
             response = self.http_client.get(url)
         except:
             print ('No response, server may be down')
+            
         try:
             if response.status_code == 200:
-                    self.server_rsa_pub  = RSA.importKey(response.text)
-                    print ('Server private key aquired')
+                self.server_rsa_pub  = RSA.importKey(response.text)
+                print ('Server private key aquired')
             else:
                 print ('Server failed to provide public key')
         except:
@@ -109,19 +122,16 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setContextMenu(mainMenu)
     
     def create_uuid(self, UUID_string):
-        
         return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
 
     def change_icon_on_login(self):
         self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
-        
-        
+
     def show_login(self):
         self.loginForm.show()
-        
+
     def show_timestamp_form(self):
         self.timestamp_form.show()
-
 
     def show_token(self):
         """Placeholder function"""
