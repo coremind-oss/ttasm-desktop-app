@@ -26,15 +26,23 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
         self.set_desktop_timezone()
 
-        self.set_server_public_key()
-        self.uuid = self.create_uuid('TTASM')
-        print('UUID {} created'.format(self.uuid))
-        self.create_private_key()
+#         self.set_server_public_key()
+#         self.uuid = self.create_uuid('TTASM')
+#         print('UUID {} created'.format(self.uuid))
+#         self.create_private_key()
         self.create_ui()
         # Keeping reference to LoginForm object so that window wouldn't close
         self.loginForm = LoginForm(parentTray = self)
         self.timestamp_form = TimestampForm(parentTray = self)
         self.show_login()
+        
+        self.uuid = self.create_uuid('TTASM')
+        print('UUID {} created'.format(self.uuid))
+        self.create_private_key()
+        
+        self.set_server_public_key()
+        
+        
         
     def getURL(self, path):
         return '{}{}'.format(self.base_url, path)
@@ -75,8 +83,8 @@ class SystemTrayIcon(QSystemTrayIcon):
                 print ('Server failed to provide public key')
         except:
             print("\nServer is not responding")
-            self.quit()
-
+            self.loginForm.close()
+          
     def create_private_key(self):
         #Create new client RSA private key, public key and public key hash and store them to disk
         random_generator = Random.new().read
@@ -89,7 +97,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 #             f.write(cl_rsa.publickey().exportKey())
 #         with open('./clientdata/client_RSA.hash', 'w') as f:
 #             f.write(SHA256.new(cl_rsa.publickey().exportKey()).hexdigest())
-    
+        
     print ('Client keys created')
 
     def create_ui(self):
@@ -161,3 +169,4 @@ class SystemTrayIcon(QSystemTrayIcon):
             print ("Deleting pid file")
         print ("Exiting")
         sys.exit(0)
+        
