@@ -1,3 +1,4 @@
+import json
 import sys, os, requests, uuid
 
 from Crypto import Random
@@ -7,23 +8,25 @@ from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
 
 from login import LoginForm
+from settings import HTTP_PROTOCOL
+from settings import SERVER_URL
 from timestamp.form import TimestampForm
 
 
 class SystemTrayIcon(QSystemTrayIcon):
 
+    def __init__(self):
+        QSystemTrayIcon.__init__(self)
 
-    def __init__(self, ):
+        self.setIcon(QIcon('icons/icon-placeholder_128x128_red.png'))
+#         icon = QIcon('icons/icon-placeholder_128x128_red.png')
+#         super(SystemTrayIcon, self).__init__(icon)
         
-        self.SERVER_URL = '127.0.0.1:8000'
-        self.HTTP_PROTOCOL = 'HTTP' # http_protocol would represent HTTP or HTTPS
-        
-        icon = QIcon('icons/icon-placeholder_128x128.png')
-        super(SystemTrayIcon, self).__init__(icon)
-        
+        self.http_client = requests.Session()
+        self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
+        self.set_desktop_timezone()
 
-#         self.user = ''
-        self.get_server_public_key()
+        self.set_server_public_key()
         self.uuid = self.create_uuid('TTASM')
         print('UUID {} created'.format(self.uuid))
         self.create_private_key()
@@ -33,21 +36,41 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.timestamp_form = TimestampForm(parentTray = self)
         self.show_login()
         
+    def getURL(self, path):
+        return '{}{}'.format(self.base_url, path)
 
-    def get_server_public_key(self):
+    # Find Desktop's timezone   
+    def set_desktop_timezone(self):
+        response = requests.get('http://freegeoip.net/json')
+        response_json = json.JSONDecoder().decode(response.text)
+        self.timezone = response_json['time_zone']
+
+    def verify_base_date(self):
+        url = self.getURL('/verify_base_date/?timezone={}'.format(self.timezone))
+        try:
+            response = self.http_client.get(url)
+            if response.status_code != 200:
+                raise Exception('Base date not set properly')
+            else:
+                print('DailyActivity object base_date verified')
+        except:
+            print ('No response, server may be down')
+
+    def set_server_public_key(self):
         #get server private key 
 
-        url = '{}://{}/public_key/'.format(self.HTTP_PROTOCOL, self.SERVER_URL)
+        url = self.getURL('/public_key/')
         print('Trying to get the public key from:', url) 
         
         try:
-            response = requests.get(url)
+            response = self.http_client.get(url)
         except:
             print ('No response, server may be down')
+            
         try:
             if response.status_code == 200:
-                    self.server_rsa_pub  = RSA.importKey(response.text)
-                    print ('Server private key aquired')
+                self.server_rsa_pub  = RSA.importKey(response.text)
+                print ('Server private key aquired')
             else:
                 print ('Server failed to provide public key')
         except:
@@ -98,16 +121,16 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setContextMenu(mainMenu)
     
     def create_uuid(self, UUID_string):
-        
         return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
 
-        
+    def change_icon_on_login(self):
+        self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
+
     def show_login(self):
         self.loginForm.show()
-        
+
     def show_timestamp_form(self):
         self.timestamp_form.show()
-
 
     def show_token(self):
         """Placeholder function"""
