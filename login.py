@@ -184,14 +184,10 @@ class LoginForm(QWidget):
                 parentTray.verify_base_date()
                 with open ('last_user' ,'w') as f:
                     f.write(email) 
-                msgBox = QMessageBox()
-                msgBox.setInformativeText('You are now logged in as {}'.format(email))
-                msgBox.setIcon(QMessageBox.Information)
-                msgBox.setWindowTitle("Log-in")
-    
-                msgBox.setStandardButtons(QMessageBox.Ok)
-                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-                msgBox.exec()
+                self.parentTray.showMessage('Issue-54',
+                     'Create a message here',
+                     parentTray.Information,
+                     3000)
                 self.close()
 
 
