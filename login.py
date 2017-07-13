@@ -181,7 +181,7 @@ class LoginForm(QWidget):
             
             else:
                 parentTray.change_icon_on_login()
-                parentTray.verify_base_date()
+                parentTray.verify_initial_data()
                 with open ('last_user' ,'w') as f:
                     f.write(email) 
                 self.parentTray.showMessage('Issue-54',
