@@ -184,8 +184,8 @@ class LoginForm(QWidget):
                 parentTray.verify_base_date()
                 with open ('last_user' ,'w') as f:
                     f.write(email) 
-                self.parentTray.showMessage('Issue-54',
-                     'Create a message here',
+                self.parentTray.showMessage('Success',
+                     'You are logged in as {}'.format(email),
                      parentTray.Information,
                      3000)
                 self.close()
