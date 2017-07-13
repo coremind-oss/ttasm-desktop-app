@@ -46,8 +46,8 @@ class TimestampForm(QWidget):
         cancelButton.clicked.connect(self.cancel)
         
         
-        sendButton.clicked.connect(lambda: self.send_timestamp(self.message.text()))
-        self.message.returnPressed.connect(lambda: self.send_timestamp(self.message.text()))
+        sendButton.clicked.connect(lambda: self.send_timestamp(self.parentTray, self.message.text()))
+        self.message.returnPressed.connect(lambda: self.send_timestamp(self.parentTray, self.message.text()))
         
         formBox = QFormLayout()
         formBox.addRow(msgLabel)
@@ -80,7 +80,7 @@ class TimestampForm(QWidget):
         time_spent = currentTime - previousTime
         return human_time(time_spent)
 
-    def send_timestamp(self, message):
+    def send_timestamp(self, parentTray, message):
         if not message:
      
             msgBox = QMessageBox()
@@ -125,16 +125,16 @@ class TimestampForm(QWidget):
 #             print('THIS IS RESPONSE\n\n{}'.format(response.text))
 
             
-            if response.text == 'Server receive message':
-                msgBox = QMessageBox()
-                msgBox.setInformativeText('Server receive message \n-> {} <- \npending writing into databaze'.format(message))
-                msgBox.setIcon(QMessageBox.Information)
-                msgBox.setWindowTitle("Message")
-     
-                msgBox.setStandardButtons(QMessageBox.Ok)
-                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-                msgBox.exec()
+            if response.status_code == 200:
+                
+                self.parentTray.showMessage('You message is: ',
+                    message ,
+                    parentTray.Information,
+                    3000)
+           
                 self.close() 
+                
+                
                 
 
     def keyPressEvent(self, event):
