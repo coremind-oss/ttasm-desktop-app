@@ -127,14 +127,14 @@ class TimestampForm(QWidget):
             
             if response.status_code == 200:
                 
-                self.parentTray.showMessage('You message is: ',
+                self.parentTray.showMessage('Your message is: ',
                     message ,
                     parentTray.Information,
                     3000)
-           
+                
                 self.close() 
                 
-                
+                self.message.setText('')
                 
 
     def keyPressEvent(self, event):
