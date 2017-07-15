@@ -113,16 +113,20 @@ class SystemTrayIcon(QSystemTrayIcon):
         subButton_2.triggered.connect(self.test_sockets)
 
         # Set the order of layout and add everything to main menu
-        logInButton = mainMenu.addAction("Log in")
-        logInButton.triggered.connect(self.present_login_form)
+        self.logInButton = mainMenu.addAction("Log in")
+        self.logInButton.triggered.connect(self.present_login_form)
+        
+        simButton = mainMenu.addAction("Let's pretend server is accessible")
+        simButton.triggered.connect(self.present_login_form)
+        
         
         mainMenu.addSeparator()
-        msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
-        msgButton.triggered.connect(self.present_timestamp_form)
+        self.msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
+        self.msgButton.triggered.connect(self.present_timestamp_form)
         
         if not self.server_accessible:
-            logInButton.setEnabled(False)
-            msgButton.setEnabled(False)
+            self.logInButton.setEnabled(False)
+            self.msgButton.setEnabled(False)
             
         
         mainMenu.addSeparator()
@@ -132,6 +136,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         exitButton.triggered.connect(self.quit)
 
         self.setContextMenu(mainMenu)
+        
+    
     
     def create_uuid(self, UUID_string):
         return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
