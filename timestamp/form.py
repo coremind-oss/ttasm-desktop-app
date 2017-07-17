@@ -1,12 +1,11 @@
-from datetime import datetime
-
 from PyQt5 import QtCore
 from PyQt5.Qt import QFormLayout, QHBoxLayout
-from PyQt5.QtWidgets import QLabel, QMessageBox
+from PyQt5.QtWidgets import QLabel, QMessageBox, QSystemTrayIcon
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 import pytz
+
 from timestamp.utils import human_time
 
 
@@ -46,8 +45,8 @@ class TimestampForm(QWidget):
         cancelButton.clicked.connect(self.cancel)
         
         
-        sendButton.clicked.connect(lambda: self.send_timestamp(self.message.text()))
-        self.message.returnPressed.connect(lambda: self.send_timestamp(self.message.text()))
+        sendButton.clicked.connect(lambda: self.send_timestamp(self.parentTray, self.message.text()))
+        self.message.returnPressed.connect(lambda: self.send_timestamp(self.parentTray, self.message.text()))
         
         formBox = QFormLayout()
         formBox.addRow(msgLabel)
@@ -80,7 +79,7 @@ class TimestampForm(QWidget):
         time_spent = currentTime - previousTime
         return human_time(time_spent)
 
-    def send_timestamp(self, message):
+    def send_timestamp(self, parentTray, message):
         if not message:
      
             msgBox = QMessageBox()
@@ -117,24 +116,33 @@ class TimestampForm(QWidget):
                         'timezone': self.parentTray.timezone,
                     }
                 )
-                 
-             
+
             except Exception as e:
-                print('there is no proper server')
+                response = DummyResponse(-1, 'ConnectionError')
             print(response.text)
 #             print('THIS IS RESPONSE\n\n{}'.format(response.text))
 
             
-            if response.text == 'Server receive message':
-                msgBox = QMessageBox()
-                msgBox.setInformativeText('Server receive message \n-> {} <- \npending writing into databaze'.format(message))
-                msgBox.setIcon(QMessageBox.Information)
-                msgBox.setWindowTitle("Message")
-     
-                msgBox.setStandardButtons(QMessageBox.Ok)
-                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-                msgBox.exec()
-                self.close() 
+            if response.status_code == 200:
+                
+                self.parentTray.showMessage(
+                    'Your message is: ',
+                    message ,
+                    QSystemTrayIcon.Information,
+                    3000,
+                )
+                
+                self.close()
+                
+                self.message.setText('')
+            else:
+                self.close()
+                self.parentTray.showMessage(
+                    'Error: ',
+                    'Your message wasn\'t sent.\nReason: {}'.format(response.text),
+                    QSystemTrayIcon.Critical,
+                    5000,
+                )
                 
 
     def keyPressEvent(self, event):
@@ -146,4 +154,8 @@ class TimestampForm(QWidget):
     def cancel(self):
         self.message.setPlaceholderText('Enter text here...')
         self.hide()
-    
+
+class DummyResponse():
+    def __init__(self, status_code, text):
+        self.status_code = status_code
+        self.text = text
