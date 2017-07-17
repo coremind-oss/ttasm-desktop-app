@@ -116,8 +116,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.logInButton = mainMenu.addAction("Log in")
         self.logInButton.triggered.connect(self.present_login_form)
         
-        simButton = mainMenu.addAction("Let's pretend server is accessible")
-        simButton.triggered.connect(self.present_login_form)
+        self.simButton = mainMenu.addAction("Let's pretend server is accessible")
+        self.simButton.triggered.connect(self.enable_login_etc)
         
         
         mainMenu.addSeparator()
@@ -137,6 +137,11 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.setContextMenu(mainMenu)
         
+    
+    def enable_login_etc(self):
+        self.logInButton.setEnabled(True)
+        self.msgButton.setEnabled(True)
+    
     
     
     def create_uuid(self, UUID_string):
