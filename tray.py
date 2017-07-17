@@ -116,7 +116,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         mainMenu.addSeparator()
         msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
-        msgButton.triggered.connect(self.show_timestamp_form)
+        msgButton.triggered.connect(self.present_timestamp_form)
         
         
         mainMenu.addSeparator()
@@ -137,7 +137,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.login_form = LoginForm(parentTray = self)
         self.login_form.show()
     
-    def show_timestamp_form(self):
+    def present_timestamp_form(self):
         self.timestamp_form.show()
 
     def show_token(self):
