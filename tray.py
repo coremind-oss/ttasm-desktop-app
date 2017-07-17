@@ -19,22 +19,29 @@ class SystemTrayIcon(QSystemTrayIcon):
         QSystemTrayIcon.__init__(self)
 
         self.setIcon(QIcon('icons/icon-placeholder_128x128_red.png'))
-#         icon = QIcon('icons/icon-placeholder_128x128_red.png')
-#         super(SystemTrayIcon, self).__init__(icon)
         
         self.http_client = requests.Session()
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
         self.set_desktop_timezone()
 
-        self.set_server_public_key()
-        self.uuid = self.create_uuid('TTASM')
-        print('UUID {} created'.format(self.uuid))
-        self.create_private_key()
-        self.create_ui()
+        
         # Keeping reference to LoginForm object so that window wouldn't close
-        self.loginForm = LoginForm(parentTray = self)
+        self.login_form = LoginForm(parentTray = self)
         self.timestamp_form = TimestampForm(parentTray = self)
-        self.show_login()
+       
+        
+        self.uuid = self.create_uuid('TTASM')
+        self.create_private_key()
+        
+        try:
+            requests.get(self.base_url)
+            self.login_form.show()
+        except:
+            pass
+        
+        self.set_server_public_key()
+        
+        self.create_ui()
         
     def getURL(self, path):
         return '{}{}'.format(self.base_url, path)
@@ -75,8 +82,8 @@ class SystemTrayIcon(QSystemTrayIcon):
                 print ('Server failed to provide public key')
         except:
             print("\nServer is not responding")
-            self.quit()
-
+#             self.loginForm.close()
+          
     def create_private_key(self):
         #Create new client RSA private key, public key and public key hash and store them to disk
         random_generator = Random.new().read
@@ -89,7 +96,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 #             f.write(cl_rsa.publickey().exportKey())
 #         with open('./clientdata/client_RSA.hash', 'w') as f:
 #             f.write(SHA256.new(cl_rsa.publickey().exportKey()).hexdigest())
-    
+        
     print ('Client keys created')
 
     def create_ui(self):
@@ -105,7 +112,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         # Set the order of layout and add everything to main menu
         logInButton = mainMenu.addAction("Log in")
-        logInButton.triggered.connect(self.show_login)
+        logInButton.triggered.connect(self.login_form.show)
         
         mainMenu.addSeparator()
         msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
@@ -125,10 +132,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def change_icon_on_login(self):
         self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
-
-    def show_login(self):
-        self.loginForm.show()
-
+    
     def show_timestamp_form(self):
         self.timestamp_form.show()
 
@@ -161,3 +165,4 @@ class SystemTrayIcon(QSystemTrayIcon):
             print ("Deleting pid file")
         print ("Exiting")
         sys.exit(0)
+        
