@@ -54,17 +54,28 @@ class SystemTrayIcon(QSystemTrayIcon):
         response_json = json.JSONDecoder().decode(response.text)
         self.timezone = response_json['time_zone']
 
-    def verify_base_date(self):
+    def verify_initial_data(self):
         url = self.getURL('/verify_base_date/?timezone={}'.format(self.timezone))
         try:
             response = self.http_client.get(url)
             if response.status_code != 200:
                 raise Exception('Base date not set properly')
             else:
-                print('DailyActivity object base_date verified')
+                print('DailyActivity object base_date verified: {}'.format(response.text))
         except:
             print ('No response, server may be down')
-
+        
+        last_timestamp_url = self.getURL('/get_last_timestamp/')
+        try:
+            response = self.http_client.get(last_timestamp_url)
+            if response.status_code != 200:
+                raise Exception('Base date not set properly')
+            else:
+                print('Response is: {}'.format(response.text))
+                self.last_timestamp = response.text
+                print('last_timestamp----->: {}'.format(self.last_timestamp))
+        except:
+            print('last_timestamp is not provided from database')
     def set_server_public_key(self):
         #get server private key 
 
