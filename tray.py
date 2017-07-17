@@ -26,7 +26,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         
         # Keeping reference to LoginForm object so that window wouldn't close
-        self.login_form = LoginForm(parentTray = self)
+        
         self.timestamp_form = TimestampForm(parentTray = self)
        
         
@@ -35,7 +35,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         try:
             requests.get(self.base_url)
-            self.login_form.show()
+            self.present_login_form()
         except:
             pass
         
@@ -112,7 +112,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         # Set the order of layout and add everything to main menu
         logInButton = mainMenu.addAction("Log in")
-        logInButton.triggered.connect(self.login_form.show)
+        logInButton.triggered.connect(self.present_login_form)
         
         mainMenu.addSeparator()
         msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
@@ -132,6 +132,10 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def change_icon_on_login(self):
         self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
+        
+    def present_login_form(self):
+        self.login_form = LoginForm(parentTray = self)
+        self.login_form.show()
     
     def show_timestamp_form(self):
         self.timestamp_form.show()
