@@ -1,12 +1,11 @@
-from datetime import datetime
-
 from PyQt5 import QtCore
 from PyQt5.Qt import QFormLayout, QHBoxLayout
-from PyQt5.QtWidgets import QLabel, QMessageBox
+from PyQt5.QtWidgets import QLabel, QMessageBox, QSystemTrayIcon
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 import pytz
+
 from timestamp.utils import human_time
 
 
@@ -117,24 +116,33 @@ class TimestampForm(QWidget):
                         'timezone': self.parentTray.timezone,
                     }
                 )
-                 
-             
+
             except Exception as e:
-                print('there is no proper server')
+                response = DummyResponse(-1, 'ConnectionError')
             print(response.text)
 #             print('THIS IS RESPONSE\n\n{}'.format(response.text))
 
             
             if response.status_code == 200:
                 
-                self.parentTray.showMessage('Your message is: ',
+                self.parentTray.showMessage(
+                    'Your message is: ',
                     message ,
-                    parentTray.Information,
-                    3000)
+                    QSystemTrayIcon.Information,
+                    3000,
+                )
                 
-                self.close() 
+                self.close()
                 
                 self.message.setText('')
+            else:
+                self.close()
+                self.parentTray.showMessage(
+                    'Error: ',
+                    'Your message wasn\'t sent.\nReason: {}'.format(response.text),
+                    QSystemTrayIcon.Critical,
+                    5000,
+                )
                 
 
     def keyPressEvent(self, event):
@@ -146,4 +154,8 @@ class TimestampForm(QWidget):
     def cancel(self):
         self.message.setPlaceholderText('Enter text here...')
         self.hide()
-    
+
+class DummyResponse():
+    def __init__(self, status_code, text):
+        self.status_code = status_code
+        self.text = text
