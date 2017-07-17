@@ -35,8 +35,10 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         try:
             requests.get(self.base_url)
+            self.server_accessible = True
             self.present_login_form()
         except:
+            self.server_accessible = False
             pass
         
         self.set_server_public_key()
@@ -118,6 +120,10 @@ class SystemTrayIcon(QSystemTrayIcon):
         msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
         msgButton.triggered.connect(self.present_timestamp_form)
         
+        if not self.server_accessible:
+            logInButton.setEnabled(False)
+            msgButton.setEnabled(False)
+            
         
         mainMenu.addSeparator()
         mainMenu.addMenu(subMenu)
