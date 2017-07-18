@@ -147,7 +147,7 @@ class LoginForm(QWidget):
             msgBox.exec()
 
         else:
-            url = parentTray.getURL('/accounts/login/')
+            url = parentTray.createURL('/accounts/login/')
             print('Trying to authenticate on', url)
             try:
                 response = parentTray.http_client.post(
@@ -179,7 +179,7 @@ class LoginForm(QWidget):
                 self.show()
                 return False
             
-            else:
+            else: # if user logged in successfully
                 parentTray.change_icon_on_login()
                 parentTray.verify_initial_data()
                 with open ('last_user' ,'w') as f:

@@ -45,7 +45,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         self.create_ui()
         
-    def getURL(self, path):
+    def createURL(self, path):
         return '{}{}'.format(self.base_url, path)
 
     # Find Desktop's timezone   
@@ -55,31 +55,20 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.timezone = response_json['time_zone']
 
     def verify_initial_data(self):
-        url = self.getURL('/verify_base_date/?timezone={}'.format(self.timezone))
+        url = self.createURL('/initial_synchronization/?timezone={}'.format(self.timezone))
         try:
             response = self.http_client.get(url)
-            if response.status_code != 200:
-                raise Exception('Base date not set properly')
-            else:
-                print('DailyActivity object base_date verified: {}'.format(response.text))
-        except:
-            print ('No response, server may be down')
-        
-        last_timestamp_url = self.getURL('/get_last_timestamp/')
-        try:
-            response = self.http_client.get(last_timestamp_url)
-            if response.status_code != 200:
-                raise Exception('Base date not set properly')
-            else:
-                print('Response is: {}'.format(response.text))
+            if response.status_code == 200:
                 self.last_timestamp = response.text
-                print('last_timestamp----->: {}'.format(self.last_timestamp))
+            else:
+                raise Exception('Server errror: {}'.format(response.status_code))
         except:
-            print('last_timestamp is not provided from database')
+            print('Something is wrong with server comms')
+    
     def set_server_public_key(self):
-        #get server private key 
+        #get server public key 
 
-        url = self.getURL('/public_key/')
+        url = self.createURL('/public_key/')
         print('Trying to get the public key from:', url) 
         
         try:
@@ -111,7 +100,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 #             f.write(SHA256.new(cl_rsa.publickey().exportKey()).hexdigest())
         
     print ('Client keys created')
-
+    
     def create_ui(self):
         """Create user interface of Tray icon"""
 

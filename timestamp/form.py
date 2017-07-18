@@ -65,7 +65,7 @@ class TimestampForm(QWidget):
     def calc_time_spent(self):
         if not hasattr(self.parentTray, 'last_timestamp'):
             print('get server time attempt')
-            url = self.parentTray.getURL('/get_last_timestamp/')
+            url = self.parentTray.createURL('/get_last_timestamp/')
             response = self.parentTray.http_client(url)
 
 #    TODO: this needs to be parsed from the timestamp format used on the server
@@ -100,7 +100,7 @@ class TimestampForm(QWidget):
         else:
             print('\nSent message is: {}'.format(message))
 
-            url = self.parentTray.getURL('/timestamp_message_handling/')
+            url = self.parentTray.createURL('/timestamp_message_handling/')
              
             print("Trying to send data to {}".format(url))
 
