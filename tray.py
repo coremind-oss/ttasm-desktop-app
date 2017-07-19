@@ -151,11 +151,13 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
         
     def present_login_form(self):
-        self.login_form = LoginForm(parentTray = self)
+        self.login_form = LoginForm(self)
         self.login_form.show()
     
     def present_timestamp_form(self):
-        self.timestamp_form = TimestampForm(parentTray = self)
+        url = self.createURL('/last_activity_duration/')
+        response = self.http_client.get(url)
+        self.timestamp_form = TimestampForm(self, response.text)
         self.timestamp_form.show()
 
     def show_token(self):

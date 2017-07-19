@@ -4,17 +4,17 @@ from PyQt5.QtWidgets import QLabel, QMessageBox, QSystemTrayIcon
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
-import pytz
 
-from timestamp.utils import human_time, ttasm_time_format
+
 
 
 class TimestampForm(QWidget):
     
-    def __init__(self, parentTray):
-        super(TimestampForm,self).__init__()
+    def __init__(self, parent_tray, time_passed):
+        super(TimestampForm, self).__init__()
         
-        self.parentTray = parentTray
+        self.parent_tray = parent_tray
+        self.time_passed = time_passed
         
         self.height = 300
         self.width =  100
@@ -31,9 +31,8 @@ class TimestampForm(QWidget):
         
         
     def create_ui(self):
-         
-#         msgLabel = QLabel('What were you doing for the past')
-        msgLabel = QLabel('What were you doing for the past {}?'.format(self.calc_time_spent()))
+        print(type(self.time_passed))
+        msgLabel = QLabel('What were you doing for the past {}?'.format(self.time_passed))
         self.message = QLineEdit()
         
         self.message.setPlaceholderText('Enter text here...')
@@ -45,8 +44,8 @@ class TimestampForm(QWidget):
         cancelButton.clicked.connect(self.cancel)
         
         
-        sendButton.clicked.connect(lambda: self.send_timestamp(self.parentTray, self.message.text()))
-        self.message.returnPressed.connect(lambda: self.send_timestamp(self.parentTray, self.message.text()))
+        sendButton.clicked.connect(lambda: self.send_timestamp(self.parent_tray, self.message.text()))
+        self.message.returnPressed.connect(lambda: self.send_timestamp(self.parent_tray, self.message.text()))
         
         formBox = QFormLayout()
         formBox.addRow(msgLabel)
@@ -61,28 +60,6 @@ class TimestampForm(QWidget):
         self.setLayout(formBox)
         
         self.setFixedSize(self.height, self.width)
-
-    def calc_time_spent(self):
-        url = self.parentTray.createURL('/get_server_time/')
-        response = self.parentTray.http_client.get(url)
-        
-        if response.status_code == 200:
-            self.server_time = response.text
-#             print('Server time is:-------> '.format(response.text))
-            
-#             previousTime = ttasm_time_format(self.parentTray.last_timestamp)
-            tzinfo = pytz.timezone(self.parentTray.timezone) 
-#             previousTime = previousTime.astimezone(tzinfo)
-            previousTime_str = self.parentTray.last_timestamp
-            currentTime_str = self.server_time
-            previousTime_parsed = ttasm_time_format(previousTime_str).astimezone(tzinfo)
-            currentTime_parsed = ttasm_time_format(currentTime_str).astimezone(tzinfo)
-            print('zadnji timestamp : {}\n serversko vreme: {}'.format(previousTime_parsed, currentTime_parsed))
-#             return self.server_time
-
-            time_spent = currentTime_parsed - previousTime_parsed
-            return human_time(time_spent)
-
 
     def send_timestamp(self, parentTray, message):
         if not message:
@@ -105,20 +82,20 @@ class TimestampForm(QWidget):
         else:
             print('\nSent message is: {}'.format(message))
 
-            url = self.parentTray.createURL('/timestamp_message_handling/')
+            url = self.parent_tray.createURL('/timestamp_message_handling/')
              
             print("Trying to send data to {}".format(url))
 
             try:
-                response = self.parentTray.http_client.post(
+                response = self.parent_tray.http_client.post(
                     url,
                     headers = {
-                        'X-CSRFToken': self.parentTray.http_client.cookies.get('csrftoken'),
+                        'X-CSRFToken': self.parent_tray.http_client.cookies.get('csrftoken'),
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     data={
                         'message': message,
-                        'timezone': self.parentTray.timezone,
+                        'timezone': self.parent_tray.timezone,
                     }
                 )
 
@@ -130,7 +107,7 @@ class TimestampForm(QWidget):
             
             if response.status_code == 200:
                 
-                self.parentTray.showMessage(
+                self.parent_tray.showMessage(
                     'Your message is: ',
                     message ,
                     QSystemTrayIcon.Information,
@@ -142,7 +119,7 @@ class TimestampForm(QWidget):
                 self.message.setText('')
             else:
                 self.close()
-                self.parentTray.showMessage(
+                self.parent_tray.showMessage(
                     'Error: ',
                     'Your message wasn\'t sent.\nReason: {}'.format(response.text),
                     QSystemTrayIcon.Critical,
