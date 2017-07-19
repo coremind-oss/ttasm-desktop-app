@@ -11,6 +11,7 @@ from login import LoginForm
 from settings import HTTP_PROTOCOL
 from settings import SERVER_URL
 from timestamp.form import TimestampForm
+from pip._vendor.requests.api import request
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -132,8 +133,12 @@ class SystemTrayIcon(QSystemTrayIcon):
         mainMenu.addSeparator()
         mainMenu.addMenu(subMenu)
         mainMenu.addSeparator()
+        self.logoutButton = mainMenu.addAction("Log out")
+        self.logoutButton.triggered.connect(self.logout)
+        mainMenu.addSeparator()
         exitButton = mainMenu.addAction("Exit")
         exitButton.triggered.connect(self.quit)
+        
 
         self.setContextMenu(mainMenu)
         
@@ -141,6 +146,11 @@ class SystemTrayIcon(QSystemTrayIcon):
     def enable_login_etc(self):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
+        
+    def enable_logout_button(self):
+        self.logInButton.setEnabled(False)
+        
+
     
     
     
@@ -180,7 +190,17 @@ class SystemTrayIcon(QSystemTrayIcon):
                          'Pending implementation',
                          QSystemTrayIcon.Information,
                          3000)
+    #How to logout through request, enable login button and disable logout button
+    def logout(self):
+        print("User loggedout")
+#         url = self.createURL('/user_logout/')
+#         response = self.http_client.get(url)
+#         if response.status_code == 200:
+#             print("User loggedout", response.text)
 
+#         self.logInButton.setEnabled(True)
+#         self.logoutButton.setEnabled(False)
+        
 
     def quit(self):
         """Exit program in a clean way."""
