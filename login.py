@@ -181,7 +181,7 @@ class LoginForm(QWidget):
             
             else: # if user logged in successfully
                 parentTray.change_icon_on_login()
-                parentTray.enable_logout_button()
+                parentTray.toggle_login_logout_button()
                 parentTray.verify_initial_data()
                 with open ('last_user' ,'w') as f:
                     f.write(email) 
