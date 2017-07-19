@@ -27,7 +27,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         # Keeping reference to LoginForm object so that window wouldn't close
         
-        self.timestamp_form = TimestampForm(parentTray = self)
+        
        
         
         self.uuid = self.create_uuid('TTASM')
@@ -155,6 +155,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.login_form.show()
     
     def present_timestamp_form(self):
+        self.timestamp_form = TimestampForm(parentTray = self)
         self.timestamp_form.show()
 
     def show_token(self):

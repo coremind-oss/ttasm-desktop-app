@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 import pytz
 
-from timestamp.utils import human_time
+from timestamp.utils import human_time, ttasm_time_format
 
 
 class TimestampForm(QWidget):
@@ -31,9 +31,9 @@ class TimestampForm(QWidget):
         
         
     def create_ui(self):
-        
-        msgLabel = QLabel('What were you doing for the past')
-#         msgLabel = QLabel('What were you doing for the past {}?'.format(self.calc_time_spent()))
+         
+#         msgLabel = QLabel('What were you doing for the past')
+        msgLabel = QLabel('What were you doing for the past {}?'.format(self.calc_time_spent()))
         self.message = QLineEdit()
         
         self.message.setPlaceholderText('Enter text here...')
@@ -63,21 +63,26 @@ class TimestampForm(QWidget):
         self.setFixedSize(self.height, self.width)
 
     def calc_time_spent(self):
-        if not hasattr(self.parentTray, 'last_timestamp'):
-            print('get server time attempt')
-            url = self.parentTray.createURL('/get_last_timestamp/')
-            response = self.parentTray.http_client(url)
-
-#    TODO: this needs to be parsed from the timestamp format used on the server
-# it will also be in UTC and needs to be converted into the desktop's timezone
-#             previousTime = datetime.strptime(response.text, '%Y-%m-%d').astimezone(tzinfo-object)
-            print(response)
+        url = self.parentTray.createURL('/get_server_time/')
+        response = self.parentTray.http_client.get(url)
         
-        else:
-            previousTime = self.parentTray.last_timestamp
-        currentTime = pytz.timezone(self.parentTray.timezone)
-        time_spent = currentTime - previousTime
-        return human_time(time_spent)
+        if response.status_code == 200:
+            self.server_time = response.text
+#             print('Server time is:-------> '.format(response.text))
+            
+#             previousTime = ttasm_time_format(self.parentTray.last_timestamp)
+            tzinfo = pytz.timezone(self.parentTray.timezone) 
+#             previousTime = previousTime.astimezone(tzinfo)
+            previousTime_str = self.parentTray.last_timestamp
+            currentTime_str = self.server_time
+            previousTime_parsed = ttasm_time_format(previousTime_str).astimezone(tzinfo)
+            currentTime_parsed = ttasm_time_format(currentTime_str).astimezone(tzinfo)
+            print('zadnji timestamp : {}\n serversko vreme: {}'.format(previousTime_parsed, currentTime_parsed))
+#             return self.server_time
+
+            time_spent = currentTime_parsed - previousTime_parsed
+            return human_time(time_spent)
+
 
     def send_timestamp(self, parentTray, message):
         if not message:
