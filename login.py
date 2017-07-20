@@ -9,11 +9,11 @@ from PyQt5.QtWidgets import QWidget
 #from utility import encrypt_data
 class LoginForm(QWidget):
 
-    def __init__(self, parentTray):
+    def __init__(self, parent_tray):
         super(LoginForm, self).__init__()
 
         # keeping reference to parent
-        self.parentTray = parentTray
+        self.parent_tray = parent_tray
 
         # define fixed size
         self.fixedWidth = 250
@@ -52,12 +52,12 @@ class LoginForm(QWidget):
         # And we want to keep email and password as a private variables so we
         # don't want to make them direct members of Class and call them with self
         # directly inside self.submit() function
-        submitButton.clicked.connect(lambda: self.submit(self.parentTray,
+        submitButton.clicked.connect(lambda: self.submit(self.parent_tray,
                                                          self.email.text(),
                                                          self.password.text()))
 
         # Enter pressed inside password line edit
-        self.password.returnPressed.connect(lambda: self.submit(self.parentTray,
+        self.password.returnPressed.connect(lambda: self.submit(self.parent_tray,
                                                            self.email.text(),
                                                            self.password.text()))
         
@@ -150,16 +150,16 @@ class LoginForm(QWidget):
             url = parentTray.createURL('/accounts/login/')
             print('Trying to authenticate on', url)
             try:
-                response = parentTray.http_client.post(
+                response = self.parent_tray.http_client.post(
                     url,
                     headers = {
-                        'X-CSRFToken':parentTray.http_client.cookies.get('csrftoken'),
+                        'X-CSRFToken':self.parent_tray.http_client.cookies.get('csrftoken'),
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     data={
                         'login' : email,
                         'password' : password,
-                        'client_public_key' : parentTray.client_rsa.publickey().exportKey(),
+                        'client_public_key' : self.parent_tray.client_rsa.publickey().exportKey(),
                         'uuid' : parentTray.uuid
                     }
                 )
@@ -184,7 +184,7 @@ class LoginForm(QWidget):
                 parentTray.verify_initial_data()
                 with open ('last_user' ,'w') as f:
                     f.write(email) 
-                self.parentTray.showMessage('Success',
+                self.parent_tray.showMessage('Success',
                      'You are logged in as {}'.format(email),
                      parentTray.Information,
                      3000)
