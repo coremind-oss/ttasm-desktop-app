@@ -42,7 +42,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.present_login_form()
         except:
             self.server_accessible = False
-            t = Thread(target=self.accesibility_worker)
+            t = Thread(target=self.accessibility_worker)
             t.start()
         
         self.set_server_public_key()
@@ -141,24 +141,18 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.setContextMenu(mainMenu)
     
-    def accesibility_worker(self):
+    def accessibility_worker(self):
         while (not self.server_accessible):
             try:
                 self.http_client.get(self.base_url)
                 self.server_accessible = True
                 self.enable_login_etc()
-                print(" Server is become accessible")
             except:
-                pass
-            sleep(5)
-            print(" === Contacting the server... ===")
-                
+                sleep(5)
 
     def enable_login_etc(self):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
-    
-    
     
     def create_uuid(self, UUID_string):
         return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
