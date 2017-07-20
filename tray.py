@@ -1,5 +1,7 @@
 import json
 import sys, os, requests, uuid
+from threading import Thread
+from time import sleep
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
@@ -34,12 +36,15 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.create_private_key()
         
         try:
-            requests.get(self.base_url)
+            self.http_client.get(self.base_url)
             self.server_accessible = True
+            self.set_server_public_key()
             self.present_login_form()
         except:
             self.server_accessible = False
-            pass
+            self.setIcon(QIcon('icons/icon-placeholder_128x128_no_connection.png'))
+            t = Thread(target=self.accesibility_worker)
+            t.start()
         
         self.set_server_public_key()
         
@@ -136,8 +141,25 @@ class SystemTrayIcon(QSystemTrayIcon):
         exitButton.triggered.connect(self.quit)
 
         self.setContextMenu(mainMenu)
-        
     
+    def accesibility_worker(self):
+        while (not self.server_accessible):
+            try:
+                self.http_client.get(self.base_url)
+                self.server_accessible = True
+                self.enable_login_etc()
+                self.setIcon(QIcon('icons/icon-placeholder_128x128_red.png'))
+                self.showMessage('Connected !',
+                                 'Server is enabled again',
+                                 QSystemTrayIcon.Information,
+                                 3000
+                )
+            except:
+                pass
+            sleep(5)
+            print(" === Contacting the server... ===")
+                
+
     def enable_login_etc(self):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
