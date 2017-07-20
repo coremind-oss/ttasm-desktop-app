@@ -42,6 +42,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.present_login_form()
         except:
             self.server_accessible = False
+            self.setIcon(QIcon('icons/icon-placeholder_128x128_no_connection.png'))
             t = Thread(target=self.accesibility_worker)
             t.start()
         
@@ -147,7 +148,12 @@ class SystemTrayIcon(QSystemTrayIcon):
                 self.http_client.get(self.base_url)
                 self.server_accessible = True
                 self.enable_login_etc()
-                print(" Server is become accessible")
+                self.setIcon(QIcon('icons/icon-placeholder_128x128_red.png'))
+                self.showMessage('Connected !',
+                                 'Server is enabled again',
+                                 QSystemTrayIcon.Information,
+                                 3000
+                )
             except:
                 pass
             sleep(5)
