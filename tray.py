@@ -191,12 +191,12 @@ class SystemTrayIcon(QSystemTrayIcon):
     
     #How to logout currently logged in user through get request
     def logout(self):
-        url = self.createURL('/user_logout/')
+        url = self.createURL('/accounts/logout/')
         response = self.http_client.get(url)
         if response.status_code == 200:
-#             print("Response from view >>>>>>>", dir(response))
-            print("Response from view >>>>>>>", response.text)
-
+            print("Response from headers >>>>>>>", response.headers)
+            print("Response of user after logout >>>>>>",response.text)
+#             print("User sessionid is: >|{}|<".format(response.request.headers['sessionid']))
 
     def quit(self):
         """Exit program in a clean way."""
