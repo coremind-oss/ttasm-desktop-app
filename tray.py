@@ -194,9 +194,11 @@ class SystemTrayIcon(QSystemTrayIcon):
         url = self.createURL('/accounts/logout/')
         response = self.http_client.get(url)
         if response.status_code == 200:
-            print("Response from headers >>>>>>>", response.headers)
-            print("Response of user after logout >>>>>>",response.text)
-#             print("User sessionid is: >|{}|<".format(response.request.headers['sessionid']))
+#             print("Response from headers >>>>>>>", response.headers)
+            if not "sesionid" in response.request.headers["Cookie"]:
+                print("There is no session id, user is logged out") 
+            else:
+                print("User is still logged in")
 
     def quit(self):
         """Exit program in a clean way."""
