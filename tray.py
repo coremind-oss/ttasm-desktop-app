@@ -24,12 +24,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.http_client = requests.Session()
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
         self.set_desktop_timezone()
-
-        
-        # Keeping reference to LoginForm object so that window wouldn't close
-        
-        
-       
         
         self.uuid = self.create_uuid('TTASM')
         self.create_private_key()
@@ -133,9 +127,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         mainMenu.addSeparator()
         mainMenu.addMenu(subMenu)
         mainMenu.addSeparator()
-        self.logoutButton = mainMenu.addAction("Log out")
-        self.logoutButton.triggered.connect(self.logout)
-        self.logoutButton.setEnabled(False)
         mainMenu.addSeparator()
         exitButton = mainMenu.addAction("Exit")
         exitButton.triggered.connect(self.quit)
@@ -148,9 +139,16 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
         
-    def toggle_login_logout_button(self):
-        self.logInButton.setEnabled(False)
-        self.logoutButton.setEnabled(True)
+    def logged_in_state(self, loggedIn):
+        # TODO: add corresponding icon change once the code is available
+        if loggedIn:
+            self.logInButton.setText('Log Out')
+            self.logInButton.disconnect()
+            self.logInButton.triggered.connect(self.logout)
+        else:
+            self.logInButton.setText('Log In')
+            self.logInButton.disconnect()
+            self.logInButton.triggered.connect(self.present_login_form)
 
     def create_uuid(self, UUID_string):
         return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
@@ -199,6 +197,7 @@ class SystemTrayIcon(QSystemTrayIcon):
                 print("There is no session id, user is logged out") 
             else:
                 print("User is still logged in")
+        self.logged_in_state(False)
 
     def quit(self):
         """Exit program in a clean way."""
