@@ -75,14 +75,14 @@ class SystemTrayIcon(QSystemTrayIcon):
         try:
             response = self.http_client.get(url)
         except:
-            print ('No response, server may be down')
+            print('No response, server may be down')
             
         try:
             if response.status_code == 200:
                 self.server_rsa_pub = RSA.importKey(response.text)
-                print ('Server private key aquired')
+                print('Server private key aquired')
             else:
-                print ('Server failed to provide public key')
+                print('Server failed to provide public key')
         except:
             print("\nServer is not responding")
 #             self.loginForm.close()
