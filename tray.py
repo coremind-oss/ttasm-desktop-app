@@ -15,6 +15,7 @@ from settings import SERVER_URL
 from timestamp.form import TimestampForm
 
 
+
 class SystemTrayIcon(QSystemTrayIcon):
 
     def __init__(self):
@@ -25,12 +26,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.http_client = requests.Session()
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
         self.set_desktop_timezone()
-
-        
-        # Keeping reference to LoginForm object so that window wouldn't close
-        
-        
-       
         
         self.uuid = self.create_uuid('TTASM')
         self.create_private_key()
@@ -70,7 +65,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             print('Something is wrong with server comms')
     
     def set_server_public_key(self):
-        #get server public key 
+        # get server public key 
 
         url = self.createURL('/public_key/')
         print('Trying to get the public key from:', url) 
@@ -78,20 +73,20 @@ class SystemTrayIcon(QSystemTrayIcon):
         try:
             response = self.http_client.get(url)
         except:
-            print ('No response, server may be down')
+            print('No response, server may be down')
             
         try:
             if response.status_code == 200:
-                self.server_rsa_pub  = RSA.importKey(response.text)
-                print ('Server private key aquired')
+                self.server_rsa_pub = RSA.importKey(response.text)
+                print('Server private key aquired')
             else:
-                print ('Server failed to provide public key')
+                print('Server failed to provide public key')
         except:
             print("\nServer is not responding")
 #             self.loginForm.close()
           
     def create_private_key(self):
-        #Create new client RSA private key, public key and public key hash and store them to disk
+        # Create new client RSA private key, public key and public key hash and store them to disk
         random_generator = Random.new().read
         self.client_rsa = RSA.generate(2048, random_generator)
         print ('Client private key created')
@@ -125,7 +120,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         
         mainMenu.addSeparator()
-        self.msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
+        self.msgButton = mainMenu.addAction("Send message")  # find a way how to hide this button to preserve action on it before user's log in action
         self.msgButton.triggered.connect(self.present_timestamp_form)
         
         if not self.server_accessible:
@@ -136,8 +131,10 @@ class SystemTrayIcon(QSystemTrayIcon):
         mainMenu.addSeparator()
         mainMenu.addMenu(subMenu)
         mainMenu.addSeparator()
+        mainMenu.addSeparator()
         exitButton = mainMenu.addAction("Exit")
         exitButton.triggered.connect(self.quit)
+        
 
         self.setContextMenu(mainMenu)
     
@@ -153,7 +150,18 @@ class SystemTrayIcon(QSystemTrayIcon):
     def enable_login_etc(self):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
-    
+
+    def logged_in_state(self, loggedIn):
+        # TODO: add corresponding icon change once the code is available
+        if loggedIn:
+            self.logInButton.setText('Log Out')
+            self.logInButton.disconnect()
+            self.logInButton.triggered.connect(self.logout)
+        else:
+            self.logInButton.setText('Log In')
+            self.logInButton.disconnect()
+            self.logInButton.triggered.connect(self.present_login_form)
+
     def create_uuid(self, UUID_string):
         return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
 
@@ -190,7 +198,18 @@ class SystemTrayIcon(QSystemTrayIcon):
                          'Pending implementation',
                          QSystemTrayIcon.Information,
                          3000)
-
+    
+    # How to logout currently logged in user through get request
+    def logout(self):
+        url = self.createURL('/accounts/logout/')
+        response = self.http_client.get(url)
+        if response.status_code == 200:
+#             print("Response from headers >>>>>>>", response.headers)
+            if not "sesionid" in response.request.headers["Cookie"]:
+                print("There is no session id, user is logged out") 
+            else:
+                print("User is still logged in")
+        self.logged_in_state(False)
 
     def quit(self):
         """Exit program in a clean way."""
