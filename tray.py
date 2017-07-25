@@ -20,18 +20,20 @@ class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self):
         QSystemTrayIcon.__init__(self)
 
-        self.setIcon(QIcon('icons/icon-placeholder_128x128_red.png'))
-        
         self.http_client = requests.Session()
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
         self.set_desktop_timezone()
 
-        
-        # Keeping reference to LoginForm object so that window wouldn't close
+        # init icons
+        self.icon_states = {
+            'disconnect': QIcon('icons/icon-placeholder_128x128_no_connection.png'),
+            'logged_out': QIcon('icons/icon-placeholder_128x128_red.png'),
+            'logged_in': QIcon('icons/icon-placeholder_128x128_green.png')       ,     
+        }
+        self.changeIcon('logged_out')
         
         self.timestamp_form = TimestampForm(parentTray = self)
        
-        
         self.uuid = self.create_uuid('TTASM')
         self.create_private_key()
         
@@ -42,7 +44,6 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.present_login_form()
         except:
             self.server_accessible = False
-            self.setIcon(QIcon('icons/icon-placeholder_128x128_no_connection.png'))
             t = Thread(target=self.accesibility_worker)
             t.start()
         
@@ -142,35 +143,36 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.setContextMenu(mainMenu)
     
+    def changeIcon(self, state):
+        self.setIcon(self.icon_states[state])
+    
     def accesibility_worker(self):
+        self.changeIcon('disconnect')
         while (not self.server_accessible):
             try:
                 self.http_client.get(self.base_url)
                 self.server_accessible = True
                 self.enable_login_etc()
-                self.setIcon(QIcon('icons/icon-placeholder_128x128_red.png'))
-                self.showMessage('Connected !',
-                                 'Server is enabled again',
-                                 QSystemTrayIcon.Information,
-                                 3000
+                self.changeIcon('logged_out')
+                self.showMessage(
+                    'Connected !',
+                    'Server is enabled again',
+                    QSystemTrayIcon.Information,
+                    3000,
                 )
             except:
-                pass
-            sleep(5)
-            print(" === Contacting the server... ===")
+                sleep(5)
                 
 
     def enable_login_etc(self):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
-    
-    
-    
+ 
     def create_uuid(self, UUID_string):
         return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
 
     def change_icon_on_login(self):
-        self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
+        self.changeIcon('logged_in')
         
     def present_login_form(self):
         self.login_form = LoginForm(parentTray = self)
