@@ -67,7 +67,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             print('Something is wrong with server comms')
     
     def set_server_public_key(self):
-        #get server public key 
+        # get server public key 
 
         url = self.createURL('/public_key/')
         print('Trying to get the public key from:', url) 
@@ -79,7 +79,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             
         try:
             if response.status_code == 200:
-                self.server_rsa_pub  = RSA.importKey(response.text)
+                self.server_rsa_pub = RSA.importKey(response.text)
                 print ('Server private key aquired')
             else:
                 print ('Server failed to provide public key')
@@ -88,7 +88,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 #             self.loginForm.close()
           
     def create_private_key(self):
-        #Create new client RSA private key, public key and public key hash and store them to disk
+        # Create new client RSA private key, public key and public key hash and store them to disk
         random_generator = Random.new().read
         self.client_rsa = RSA.generate(2048, random_generator)
         print ('Client private key created')
@@ -122,7 +122,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         
         mainMenu.addSeparator()
-        self.msgButton = mainMenu.addAction("Send message") # find a way how to hide this button to preserve action on it before user's log in action
+        self.msgButton = mainMenu.addAction("Send message")  # find a way how to hide this button to preserve action on it before user's log in action
         self.msgButton.triggered.connect(self.present_timestamp_form)
         
         if not self.server_accessible:
@@ -189,7 +189,7 @@ class SystemTrayIcon(QSystemTrayIcon):
                          QSystemTrayIcon.Information,
                          3000)
     
-    #How to logout currently logged in user through get request
+    # How to logout currently logged in user through get request
     def logout(self):
         url = self.createURL('/accounts/logout/')
         response = self.http_client.get(url)
