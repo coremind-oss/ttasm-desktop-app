@@ -166,8 +166,22 @@ class LoginForm(QWidget):
                 print(parentTray.uuid)
             except Exception as e:
                 print ('No response, server may be down')
-                  
-            if response.status_code != 200:
+                
+            cookie = SimpleCookie()
+            cookie.load(response.request.headers['Cookie']) 
+            if response.status_code == 200 and 'sessionid' in cookie:
+                print("\nUser is logged in with session id: {}".format(cookie['sessionid'].value))
+                parentTray.change_icon_on_login()
+                parentTray.logged_in_state(True)
+                parentTray.verify_initial_data()
+                with open ('last_user' ,'w') as f:
+                    f.write(email) 
+                self.parent_tray.showMessage('Success',
+                     'You are logged in as {}'.format(email),
+                     parentTray.Information,
+                     3000)
+                self.close()
+            else:
                 msgBox = QMessageBox()
                 msgBox.setInformativeText('Invalid email and/or password')
                 msgBox.setIcon(QMessageBox.Information)
@@ -176,27 +190,6 @@ class LoginForm(QWidget):
                 msgBox.setStandardButtons(QMessageBox.Ok)
                 msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 msgBox.exec()
-                self.show()
-                return False
-            
-            else: # if user logged in successfully
-                cookie = SimpleCookie()
-                cookie.load(response.request.headers['Cookie'])
-                if 'sessionid' in cookie:
-                    print("\nUser is logged in with session id: {}".format(cookie['sessionid'].value))
-                    parentTray.change_icon_on_login()
-                    parentTray.logged_in_state(True)
-                    parentTray.verify_initial_data()
-                    with open ('last_user' ,'w') as f:
-                        f.write(email) 
-                    self.parent_tray.showMessage('Success',
-                         'You are logged in as {}'.format(email),
-                         parentTray.Information,
-                         3000)
-                    self.close()
-                else:
-                    print("User is not logged in")
-
 
     def cancel(self):
         """Close password input"""

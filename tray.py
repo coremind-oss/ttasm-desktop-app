@@ -1,3 +1,4 @@
+from http.cookies import SimpleCookie
 import json
 import sys, os, requests, uuid
 from threading import Thread
@@ -13,7 +14,6 @@ from login import LoginForm
 from settings import HTTP_PROTOCOL
 from settings import SERVER_URL
 from timestamp.form import TimestampForm
-
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -201,15 +201,20 @@ class SystemTrayIcon(QSystemTrayIcon):
     
     # How to logout currently logged in user through get request
     def logout(self):
-        url = self.createURL('/accounts/logout/')
+        url = self.createURL('/user_logout/')
         response = self.http_client.get(url)
+        s_cookie = SimpleCookie()
+        s_cookie.load(response.headers['Set-Cookie'])
+        c_cookie = SimpleCookie()
+        c_cookie.load(response.request.headers['Cookie'])
+        print('----> LOGOUT REQ HEADERS:', response.request.headers)
+        print('----> LOGOUT HEADERS:', response.headers)
         if response.status_code == 200:
-#             print("Response from headers >>>>>>>", response.headers)
-            if not "sesionid" in response.request.headers["Cookie"]:
-                print("There is no session id, user is logged out") 
-            else:
+            if 'sessionid' in c_cookie and 'sessionid' not in s_cookie:
                 print("User is still logged in")
-        self.logged_in_state(False)
+            else:
+                print("User is logged out")
+                self.logged_in_state(False)
 
     def quit(self):
         """Exit program in a clean way."""
