@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
+from http.cookies import SimpleCookie
 
 
 #from utility import encrypt_data
@@ -181,17 +180,22 @@ class LoginForm(QWidget):
                 return False
             
             else: # if user logged in successfully
-                parentTray.change_icon_on_login()
-                parentTray.logged_in_state(True)
-                parentTray.verify_initial_data()
-                with open ('last_user' ,'w') as f:
-                    f.write(email) 
-                self.parent_tray.showMessage('Success',
-                     'You are logged in as {}'.format(email),
-                     parentTray.Information,
-                     3000)
-                self.close()
-
+                cookie = SimpleCookie()
+                cookie.load(response.request.headers['Cookie'])
+                if 'sessionid' in cookie:
+                    print("\nUser is logged in with session id: {}".format(cookie['sessionid'].value))
+                    parentTray.change_icon_on_login()
+                    parentTray.logged_in_state(True)
+                    parentTray.verify_initial_data()
+                    with open ('last_user' ,'w') as f:
+                        f.write(email) 
+                    self.parent_tray.showMessage('Success',
+                         'You are logged in as {}'.format(email),
+                         parentTray.Information,
+                         3000)
+                    self.close()
+                else:
+                    print("User is not logged in")
 
 
     def cancel(self):
