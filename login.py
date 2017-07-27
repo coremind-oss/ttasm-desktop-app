@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
+from http.cookies import SimpleCookie
 
 
 #from utility import encrypt_data
@@ -167,20 +166,11 @@ class LoginForm(QWidget):
                 print(parentTray.uuid)
             except Exception as e:
                 print ('No response, server may be down')
-                  
-            if response.status_code != 200:
-                msgBox = QMessageBox()
-                msgBox.setInformativeText('Invalid email and/or password')
-                msgBox.setIcon(QMessageBox.Information)
-                msgBox.setWindowTitle("Oops!")
-    
-                msgBox.setStandardButtons(QMessageBox.Ok)
-                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-                msgBox.exec()
-                self.show()
-                return False
-            
-            else: # if user logged in successfully
+                
+            cookie = SimpleCookie()
+            cookie.load(response.request.headers['Cookie']) 
+            if response.status_code == 200 and 'sessionid' in cookie:
+                print("\nUser is logged in with session id: {}".format(cookie['sessionid'].value))
                 parentTray.change_icon_on_login()
                 parentTray.logged_in_state(True)
                 parentTray.verify_initial_data()
@@ -191,8 +181,15 @@ class LoginForm(QWidget):
                      parentTray.Information,
                      3000)
                 self.close()
-
-
+            else:
+                msgBox = QMessageBox()
+                msgBox.setInformativeText('Invalid email and/or password')
+                msgBox.setIcon(QMessageBox.Information)
+                msgBox.setWindowTitle("Oops!")
+    
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msgBox.exec()
 
     def cancel(self):
         """Close password input"""
