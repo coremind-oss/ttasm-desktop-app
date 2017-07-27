@@ -171,7 +171,6 @@ class LoginForm(QWidget):
             cookie.load(response.request.headers['Cookie']) 
             if response.status_code == 200 and 'sessionid' in cookie:
                 print("\nUser is logged in with session id: {}".format(cookie['sessionid'].value))
-                parentTray.change_icon_on_login()
                 parentTray.logged_in_state(True)
                 parentTray.verify_initial_data()
                 with open ('last_user' ,'w') as f:
