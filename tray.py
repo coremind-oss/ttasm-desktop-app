@@ -207,8 +207,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         s_cookie.load(response.headers['Set-Cookie'])
         c_cookie = SimpleCookie()
         c_cookie.load(response.request.headers['Cookie'])
-        print('----> LOGOUT REQ HEADERS:', response.request.headers)
-        print('----> LOGOUT HEADERS:', response.headers)
+
         if response.status_code == 200:
             if 'sessionid' in c_cookie and 'sessionid' not in s_cookie:
                 print("User is still logged in")
