@@ -5,15 +5,15 @@ from time import sleep
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
+from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMenu
+from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtWidgets import QSystemTrayIcon
 
 from login import LoginForm
 from settings import HTTP_PROTOCOL
 from settings import SERVER_URL
 from timestamp.form import TimestampForm
-
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -41,12 +41,15 @@ class SystemTrayIcon(QSystemTrayIcon):
             t.start()
         
         self.set_server_public_key()
+
         
         self.create_ui()
         
+        
+        
     def createURL(self, path):
         return '{}{}'.format(self.base_url, path)
-
+    
     # Find Desktop's timezone   
     def set_desktop_timezone(self):
         response = requests.get('http://freegeoip.net/json')
@@ -123,6 +126,18 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.msgButton = mainMenu.addAction("Send message")  # find a way how to hide this button to preserve action on it before user's log in action
         self.msgButton.triggered.connect(self.present_timestamp_form)
         
+        '''
+        Problems with adding shortcut to QSystemTrayIcon.
+        If Qmenu from QSystemTrayIcon is active and we press s button on keyboard message window will appear.
+        But if Qmenu from QSystemTrayIcon is not active and we press CTRL+M  commbination of keys, nothing is happening.
+        We just try to test that with QAction in code below
+        '''
+        
+        msgAction = QAction('&Send message', self)
+        msgAction.setShortcut("CTRL+M")
+        msgAction.triggered.connect(self.present_timestamp_form)
+        mainMenu.addAction(msgAction)
+               
         if not self.server_accessible:
             self.logInButton.setEnabled(False)
             self.msgButton.setEnabled(False)
@@ -132,12 +147,19 @@ class SystemTrayIcon(QSystemTrayIcon):
         mainMenu.addMenu(subMenu)
         mainMenu.addSeparator()
         mainMenu.addSeparator()
+        
         exitButton = mainMenu.addAction("Exit")
         exitButton.triggered.connect(self.quit)
         
+        
 
-        self.setContextMenu(mainMenu)
-    
+        self.setContextMenu(mainMenu)        
+        
+    def keyPressEvent(self, event):
+        
+        if event.key() == QtCore.Qt.Key_Enter:
+            self.present_timestamp_form()     
+        
     def accessibility_worker(self):
         while (not self.server_accessible):
             try:
@@ -177,6 +199,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         response = self.http_client.get(url)
         self.timestamp_form = TimestampForm(self, response.text)
         self.timestamp_form.show()
+
 
     def show_token(self):
         """Placeholder function"""
