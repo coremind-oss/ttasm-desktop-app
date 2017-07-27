@@ -6,6 +6,7 @@ from time import sleep
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
+from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
@@ -20,12 +21,18 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def __init__(self):
         QSystemTrayIcon.__init__(self)
-
-        self.setIcon(QIcon('icons/icon-placeholder_128x128_red.png'))
         
         self.http_client = requests.Session()
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
         self.set_desktop_timezone()
+        
+        # init icons
+        self.icon_states = {
+            'disconnect': QIcon('icons/icon-placeholder_128x128_no_connection.png'),
+            'logged_out': QIcon('icons/icon-placeholder_128x128_red.png'),
+            'logged_in': QIcon('icons/icon-placeholder_128x128_green.png')       ,     
+        }
+        self.changeIcon('logged_out')
         
         self.uuid = self.create_uuid('TTASM')
         self.create_private_key()
@@ -37,7 +44,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.present_login_form()
         except:
             self.server_accessible = False
-            t = Thread(target=self.accessibility_worker)
+            t = AccessibilityWorker(self)
             t.start()
         
         self.set_server_public_key()
@@ -147,6 +154,9 @@ class SystemTrayIcon(QSystemTrayIcon):
             except:
                 sleep(5)
 
+    def changeIcon(self, state):
+        self.setIcon(self.icon_states[state])
+
     def enable_login_etc(self):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
@@ -154,19 +164,18 @@ class SystemTrayIcon(QSystemTrayIcon):
     def logged_in_state(self, loggedIn):
         # TODO: add corresponding icon change once the code is available
         if loggedIn:
+            self.changeIcon('logged_in')
             self.logInButton.setText('Log Out')
             self.logInButton.disconnect()
             self.logInButton.triggered.connect(self.logout)
         else:
+            self.changeIcon('logged_out')
             self.logInButton.setText('Log In')
             self.logInButton.disconnect()
             self.logInButton.triggered.connect(self.present_login_form)
 
     def create_uuid(self, UUID_string):
         return uuid.uuid3(uuid.NAMESPACE_DNS, UUID_string)
-
-    def change_icon_on_login(self):
-        self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
         
     def present_login_form(self):
         self.login_form = LoginForm(self)
@@ -222,4 +231,27 @@ class SystemTrayIcon(QSystemTrayIcon):
             print ("Deleting pid file")
         print ("Exiting")
         sys.exit(0)
-        
+
+class AccessibilityWorker(QThread):
+    
+    def __init__(self, parent, *args, **kwargs):
+        self.parent = parent
+        self.parent.changeIcon('disconnect')
+        super(AccessibilityWorker, self).__init__(*args, **kwargs)
+
+    def run(self):
+        while (not self.parent.server_accessible):
+            print('checking server accessibility...')
+            try:
+                print('1. connecting')
+                self.parent.http_client.get(self.parent.base_url)
+                print('2. setting server accessible variable to True')
+                self.parent.server_accessible = True
+                print('3. changing icon to logged_out')
+                self.parent.changeIcon('logged_out')
+                print('4. enabling login etc.')
+                self.parent.enable_login_etc()
+                print('server is up')
+            except:
+                print('\t\t-- waiting for 2 seconds --')
+                sleep(2)
