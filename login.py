@@ -173,6 +173,7 @@ class LoginForm(QWidget):
                 print("\nUser is logged in with session id: {}".format(cookie['sessionid'].value))
                 parentTray.logged_in_state(True)
                 parentTray.verify_initial_data()
+                self.parent_tray.msgButton.setEnabled(True)
                 with open ('last_user' ,'w') as f:
                     f.write(email) 
                 self.parent_tray.showMessage('Success',

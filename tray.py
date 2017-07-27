@@ -42,6 +42,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.server_accessible = True
             self.set_server_public_key()
             self.present_login_form()
+            
         except:
             self.server_accessible = False
             t = AccessibilityWorker(self)
@@ -50,6 +51,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.set_server_public_key()
         
         self.create_ui()
+        self.msgButton.setEnabled(False)
         
     def createURL(self, path):
         return '{}{}'.format(self.base_url, path)
@@ -133,6 +135,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         if not self.server_accessible:
             self.logInButton.setEnabled(False)
             self.msgButton.setEnabled(False)
+        else:
+            self.msgButton.setEnabled(True)
             
         
         mainMenu.addSeparator()
@@ -180,6 +184,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def present_login_form(self):
         self.login_form = LoginForm(self)
         self.login_form.show()
+        
     
     def present_timestamp_form(self):
         url = self.createURL('/last_activity_duration/')
@@ -223,6 +228,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             else:
                 print("User is logged out")
                 self.logged_in_state(False)
+                self.msgButton.setEnabled(False)
 
     def quit(self):
         """Exit program in a clean way."""
