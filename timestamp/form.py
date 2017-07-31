@@ -141,12 +141,8 @@ class TimestampForm(QWidget):
         
     def playsong(self):
         pygame.init()
-
-        pygame.mixer.music.load("sounds/sound_message.mp3")
+        pygame.mixer.music.load("sounds/message_notification.mp3")
         pygame.mixer.music.play()
-        
-       
-        
 
 class DummyResponse():
     def __init__(self, status_code, text):
