@@ -31,7 +31,7 @@ class TimestampForm(QWidget):
         
         
     def create_ui(self):
-        print(type(self.time_passed))
+
         msgLabel = QLabel('What were you doing for the past {}?'.format(self.time_passed))
         self.message = QLineEdit()
         

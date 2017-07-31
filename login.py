@@ -73,13 +73,13 @@ class LoginForm(QWidget):
         
         # sign up label / link
         signUpLabel = QLabel()
-        signUpLabel.setText('<a href="http://localhost:8000/sign-up/">Sign Up</a>')
+        signUpLabel.setText('<a href="http://localhost:8000/accounts/signup/">Sign Up</a>')
         signUpLabel.setOpenExternalLinks(True)
         signUpLabel.show()
         
         # recover password link
         recoverLabel = QLabel()
-        recoverLabel.setText('<a href="http://localhost:8000/recover-password/">Forgot your password?</a>')
+        recoverLabel.setText('<a href="http://localhost:8000/accounts/password/change/">Forgot your password?</a>')
         recoverLabel.setOpenExternalLinks(True)
         recoverLabel.show()
         
