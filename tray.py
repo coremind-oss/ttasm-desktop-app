@@ -7,13 +7,18 @@ from Crypto import Random
 from Crypto.PublicKey import RSA
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMenu, QAction
+from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
+from pynput.keyboard import Key, Listener
+
 
 from login import LoginForm
 from settings import HTTP_PROTOCOL
 from settings import SERVER_URL
 from timestamp.form import TimestampForm
+
+
+
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -44,9 +49,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         
         self.create_ui()
-        
-        
-        
+
     def createURL(self, path):
         return '{}{}'.format(self.base_url, path)
     
@@ -102,6 +105,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 #             f.write(SHA256.new(cl_rsa.publickey().exportKey()).hexdigest())
         
     print ('Client keys created')
+                      
     
     def create_ui(self):
         """Create user interface of Tray icon"""
@@ -126,18 +130,18 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.msgButton = mainMenu.addAction("Send message")  # find a way how to hide this button to preserve action on it before user's log in action
         self.msgButton.triggered.connect(self.present_timestamp_form)
         
-        '''
-        Problems with adding shortcut to QSystemTrayIcon.
-        If Qmenu from QSystemTrayIcon is active and we press s button on keyboard message window will appear.
-        But if Qmenu from QSystemTrayIcon is not active and we press CTRL+M  commbination of keys, nothing is happening.
-        We just try to test that with QAction in code below
-        '''
-        
-        msgAction = QAction('&Send message', self)
-        msgAction.setShortcut("CTRL+M")
-        msgAction.triggered.connect(self.present_timestamp_form)
-        mainMenu.addAction(msgAction)
-               
+#         '''
+#         Problems with adding shortcut to QSystemTrayIcon.
+#         If Qmenu from QSystemTrayIcon is active and we press s button on keyboard message window will appear.
+#         But if Qmenu from QSystemTrayIcon is not active and we press CTRL+M  commbination of keys, nothing is happening.
+#         We just try to test that with QAction in code below
+#         '''
+#         
+#         msgAction = QAction('&Send message', self)
+#         msgAction.setShortcut("CTRL+M")
+#         msgAction.triggered.connect(self.present_timestamp_form)
+#         mainMenu.addAction(msgAction)
+
         if not self.server_accessible:
             self.logInButton.setEnabled(False)
             self.msgButton.setEnabled(False)
@@ -153,12 +157,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         
 
-        self.setContextMenu(mainMenu)        
-        
-    def keyPressEvent(self, event):
-        
-        if event.key() == QtCore.Qt.Key_Enter:
-            self.present_timestamp_form()     
+        self.setContextMenu(mainMenu)  
         
     def accessibility_worker(self):
         while (not self.server_accessible):
@@ -175,10 +174,15 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def logged_in_state(self, loggedIn):
         # TODO: add corresponding icon change once the code is available
+
         if loggedIn:
             self.logInButton.setText('Log Out')
             self.logInButton.disconnect()
             self.logInButton.triggered.connect(self.logout)
+############################################################
+            with Listener(on_press=self.on_press) as listener:
+                listener.join() 
+############################################################    
         else:
             self.logInButton.setText('Log In')
             self.logInButton.disconnect()
@@ -189,17 +193,17 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def change_icon_on_login(self):
         self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
-        
+  
+                
     def present_login_form(self):
         self.login_form = LoginForm(self)
         self.login_form.show()
-    
+        
     def present_timestamp_form(self):
         url = self.createURL('/last_activity_duration/')
         response = self.http_client.get(url)
         self.timestamp_form = TimestampForm(self, response.text)
         self.timestamp_form.show()
-
 
     def show_token(self):
         """Placeholder function"""
@@ -241,4 +245,12 @@ class SystemTrayIcon(QSystemTrayIcon):
             print ("Deleting pid file")
         print ("Exiting")
         sys.exit(0)
+        
+    def on_press(self,key):
+  
+        print('{0} pressed'.format(key))
+        if key == Key.f12:
+            self.present_timestamp_form() 
+              
+
         

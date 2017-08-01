@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import QWidget
 
 
 
-
 class TimestampForm(QWidget):
     
     def __init__(self, parent_tray, time_passed):
@@ -27,6 +26,8 @@ class TimestampForm(QWidget):
         self.setWindowTitle('Message')
         
         self.create_ui()
+        
+        
         
         
         
@@ -131,7 +132,6 @@ class TimestampForm(QWidget):
         
         if event.key() == QtCore.Qt.Key_Escape:
             self.close()
-        
 
     def cancel(self):
         self.message.setPlaceholderText('Enter text here...')
