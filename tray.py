@@ -5,20 +5,15 @@ from time import sleep
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
-from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
-from pynput.keyboard import Key, Listener
-
 
 from login import LoginForm
 from settings import HTTP_PROTOCOL
 from settings import SERVER_URL
 from timestamp.form import TimestampForm
-
-
-
+from events.keyboard import KeyboardEvents
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -47,8 +42,10 @@ class SystemTrayIcon(QSystemTrayIcon):
         
         self.set_server_public_key()
 
-        
         self.create_ui()
+        
+        self.keyboard_listener = KeyboardEvents()
+        self.keyboard_listener.start_listening()
 
     def createURL(self, path):
         return '{}{}'.format(self.base_url, path)
@@ -171,7 +168,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def enable_login_etc(self):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
-
+  
     def logged_in_state(self, loggedIn):
         # TODO: add corresponding icon change once the code is available
 
@@ -179,10 +176,10 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.logInButton.setText('Log Out')
             self.logInButton.disconnect()
             self.logInButton.triggered.connect(self.logout)
-############################################################
-            with Listener(on_press=self.on_press) as listener:
-                listener.join() 
-############################################################    
+ 
+
+            self.keyboard_listener.show_message_window()
+
         else:
             self.logInButton.setText('Log In')
             self.logInButton.disconnect()
@@ -204,7 +201,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         response = self.http_client.get(url)
         self.timestamp_form = TimestampForm(self, response.text)
         self.timestamp_form.show()
-
+        
     def show_token(self):
         """Placeholder function"""
         
@@ -240,17 +237,15 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def quit(self):
         """Exit program in a clean way."""
+        
+        self.keyboard_listener.stop_listener()
         if os.path.isfile('pid'):
             os.remove('pid') 
             print ("Deleting pid file")
         print ("Exiting")
         sys.exit(0)
         
-    def on_press(self,key):
-  
-        print('{0} pressed'.format(key))
-        if key == Key.f12:
-            self.present_timestamp_form() 
+    
               
 
         
