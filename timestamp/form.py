@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QLabel, QMessageBox, QSystemTrayIcon
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
+import pygame
 
 
 
@@ -32,7 +33,7 @@ class TimestampForm(QWidget):
         
         
     def create_ui(self):
-        print(type(self.time_passed))
+
         msgLabel = QLabel('What were you doing for the past {}?'.format(self.time_passed))
         self.message = QLineEdit()
         
@@ -118,6 +119,7 @@ class TimestampForm(QWidget):
                 self.close()
                 
                 self.message.setText('')
+                self.playsong()
             else:
                 self.close()
                 self.parent_tray.showMessage(
@@ -136,6 +138,11 @@ class TimestampForm(QWidget):
     def cancel(self):
         self.message.setPlaceholderText('Enter text here...')
         self.hide()
+        
+    def playsong(self):
+        pygame.init()
+        pygame.mixer.music.load("sounds/message_notification.mp3")
+        pygame.mixer.music.play()
 
 class DummyResponse():
     def __init__(self, status_code, text):

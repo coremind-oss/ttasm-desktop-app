@@ -34,9 +34,6 @@ class KeyboardEvents():
         
     def stop_listener(self):
         self.listener.on_release(keyboard.Key.esc)
-         
-    def show_message_window(self):
-        self.listener.on_press()
     
     def listener(self):
         with keyboard.Listener(

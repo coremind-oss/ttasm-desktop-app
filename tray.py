@@ -1,3 +1,4 @@
+from http.cookies import SimpleCookie
 import json
 import sys, os, requests, uuid
 from threading import Thread
@@ -5,6 +6,7 @@ from time import sleep
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
+from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
@@ -15,17 +17,22 @@ from settings import SERVER_URL
 from timestamp.form import TimestampForm
 from events.keyboard import KeyboardEvents
 
-
 class SystemTrayIcon(QSystemTrayIcon):
 
     def __init__(self):
         QSystemTrayIcon.__init__(self)
-
-        self.setIcon(QIcon('icons/icon-placeholder_128x128_red.png'))
         
         self.http_client = requests.Session()
         self.base_url = '{}://{}'.format(HTTP_PROTOCOL, SERVER_URL)
         self.set_desktop_timezone()
+        
+        # init icons
+        self.icon_states = {
+            'disconnect': QIcon('icons/icon-placeholder_128x128_no_connection.png'),
+            'logged_out': QIcon('icons/icon-placeholder_128x128_red.png'),
+            'logged_in': QIcon('icons/icon-placeholder_128x128_green.png')       ,     
+        }
+        self.changeIcon('logged_out')
         
         self.uuid = self.create_uuid('TTASM')
         self.create_private_key()
@@ -35,14 +42,16 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.server_accessible = True
             self.set_server_public_key()
             self.present_login_form()
+            
         except:
             self.server_accessible = False
-            t = Thread(target=self.accessibility_worker)
+            t = AccessibilityWorker(self)
             t.start()
         
         self.set_server_public_key()
 
         self.create_ui()
+        self.msgButton.setEnabled(False)
         
         self.keyboard_listener = KeyboardEvents()
         self.keyboard_listener.start_listening()
@@ -142,6 +151,8 @@ class SystemTrayIcon(QSystemTrayIcon):
         if not self.server_accessible:
             self.logInButton.setEnabled(False)
             self.msgButton.setEnabled(False)
+        else:
+            self.msgButton.setEnabled(True)
             
         
         mainMenu.addSeparator()
@@ -165,22 +176,27 @@ class SystemTrayIcon(QSystemTrayIcon):
             except:
                 sleep(5)
 
+    def changeIcon(self, state):
+        self.setIcon(self.icon_states[state])
+
     def enable_login_etc(self):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
-  
+        self.showMessage('Connected',
+                             'Server is accessible again',
+                             QSystemTrayIcon.Information,
+                             3000)
+
     def logged_in_state(self, loggedIn):
         # TODO: add corresponding icon change once the code is available
 
         if loggedIn:
+            self.changeIcon('logged_in')
             self.logInButton.setText('Log Out')
             self.logInButton.disconnect()
             self.logInButton.triggered.connect(self.logout)
- 
-
-            self.keyboard_listener.show_message_window()
-
         else:
+            self.changeIcon('logged_out')
             self.logInButton.setText('Log In')
             self.logInButton.disconnect()
             self.logInButton.triggered.connect(self.present_login_form)
@@ -190,12 +206,11 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def change_icon_on_login(self):
         self.setIcon(QIcon('icons/icon-placeholder_128x128_green.png'))
-  
-                
+
     def present_login_form(self):
         self.login_form = LoginForm(self)
         self.login_form.show()
-        
+
     def present_timestamp_form(self):
         url = self.createURL('/last_activity_duration/')
         response = self.http_client.get(url)
@@ -225,15 +240,20 @@ class SystemTrayIcon(QSystemTrayIcon):
     
     # How to logout currently logged in user through get request
     def logout(self):
-        url = self.createURL('/accounts/logout/')
+        url = self.createURL('/user_logout/')
         response = self.http_client.get(url)
+        s_cookie = SimpleCookie()
+        s_cookie.load(response.headers['Set-Cookie'])
+        c_cookie = SimpleCookie()
+        c_cookie.load(response.request.headers['Cookie'])
+
         if response.status_code == 200:
-#             print("Response from headers >>>>>>>", response.headers)
-            if not "sesionid" in response.request.headers["Cookie"]:
-                print("There is no session id, user is logged out") 
-            else:
+            if 'sessionid' in c_cookie and 'sessionid' not in s_cookie:
                 print("User is still logged in")
-        self.logged_in_state(False)
+            else:
+                print("User is logged out")
+                self.logged_in_state(False)
+                self.msgButton.setEnabled(False)
 
     def quit(self):
         """Exit program in a clean way."""
@@ -244,8 +264,27 @@ class SystemTrayIcon(QSystemTrayIcon):
             print ("Deleting pid file")
         print ("Exiting")
         sys.exit(0)
-        
-    
-              
 
-        
+class AccessibilityWorker(QThread):
+    
+    def __init__(self, parent, *args, **kwargs):
+        self.parent = parent
+        self.parent.changeIcon('disconnect')
+        super(AccessibilityWorker, self).__init__(*args, **kwargs)
+
+    def run(self):
+        while (not self.parent.server_accessible):
+            print('checking server accessibility...')
+            try:
+                print('1. connecting')
+                self.parent.http_client.get(self.parent.base_url)
+                print('2. setting server accessible variable to True')
+                self.parent.server_accessible = True
+                print('3. changing icon to logged_out')
+                self.parent.changeIcon('logged_out')
+                print('4. enabling login etc.')
+                self.parent.enable_login_etc()
+                print('server is up')
+            except:
+                print('\t\t-- waiting for 2 seconds --')
+                sleep(2)

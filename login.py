@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QWidget
+from http.cookies import SimpleCookie
 
 
 #from utility import encrypt_data
@@ -74,13 +73,13 @@ class LoginForm(QWidget):
         
         # sign up label / link
         signUpLabel = QLabel()
-        signUpLabel.setText('<a href="http://localhost:8000/sign-up/">Sign Up</a>')
+        signUpLabel.setText('<a href="http://localhost:8000/accounts/signup/">Sign Up</a>')
         signUpLabel.setOpenExternalLinks(True)
         signUpLabel.show()
         
         # recover password link
         recoverLabel = QLabel()
-        recoverLabel.setText('<a href="http://localhost:8000/recover-password/">Forgot your password?</a>')
+        recoverLabel.setText('<a href="http://localhost:8000/accounts/password/change/">Forgot your password?</a>')
         recoverLabel.setOpenExternalLinks(True)
         recoverLabel.show()
         
@@ -167,8 +166,22 @@ class LoginForm(QWidget):
                 print(parentTray.uuid)
             except Exception as e:
                 print ('No response, server may be down')
-                  
-            if response.status_code != 200:
+                
+            cookie = SimpleCookie()
+            cookie.load(response.request.headers['Cookie']) 
+            if response.status_code == 200 and 'sessionid' in cookie:
+                print("\nUser is logged in with session id: {}".format(cookie['sessionid'].value))
+                parentTray.logged_in_state(True)
+                parentTray.verify_initial_data()
+                self.parent_tray.msgButton.setEnabled(True)
+                with open ('last_user' ,'w') as f:
+                    f.write(email) 
+                self.parent_tray.showMessage('Success',
+                     'You are logged in as {}'.format(email),
+                     parentTray.Information,
+                     3000)
+                self.close()
+            else:
                 msgBox = QMessageBox()
                 msgBox.setInformativeText('Invalid email and/or password')
                 msgBox.setIcon(QMessageBox.Information)
@@ -177,22 +190,6 @@ class LoginForm(QWidget):
                 msgBox.setStandardButtons(QMessageBox.Ok)
                 msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 msgBox.exec()
-                self.show()
-                return False
-            
-            else: # if user logged in successfully
-                parentTray.change_icon_on_login()
-                parentTray.logged_in_state(True)
-                parentTray.verify_initial_data()
-                with open ('last_user' ,'w') as f:
-                    f.write(email) 
-                self.parent_tray.showMessage('Success',
-                     'You are logged in as {}'.format(email),
-                     parentTray.Information,
-                     3000)
-                self.close()
-
-
 
     def cancel(self):
         """Close password input"""
