@@ -1,18 +1,26 @@
-from pynput import keyboard
+import enum
 from threading import Thread
+import types
+
+from pynput import keyboard
 
 
 class KeyboardEvents():
     
-
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            if not isinstance(value, types.FunctionType):
+                raise Exception('expected a callback function, found {}'.format(type(value)))
+            else:
+                setattr(self, key, value)
 
     def on_press(self, key = None):
 
-        print('\n------->{0} pressed, start function pressing button f12'.format(key))
+        print('\n------->|{0}|<-- pressed, start function pressing button f12'.format(key))
+        if isinstance(key, enum.Enum):
+            print(type(key))
+            
         if key == keyboard.Key.f12:
-            
-########### how to call here present_timestamp_form() ?
-            
             print('\n------->We press regular button to trigger a function present_timestamp_form() from tray.py')
 
             
