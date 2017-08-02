@@ -164,6 +164,12 @@ class SystemTrayIcon(QSystemTrayIcon):
     def enable_login_etc(self):
         self.logInButton.setEnabled(True)
         self.msgButton.setEnabled(True)
+        self.showMessage('Connected',
+                             'Server is accessible again',
+                             QSystemTrayIcon.Information,
+                             3000)
+        
+        
 
     def logged_in_state(self, loggedIn):
         # TODO: add corresponding icon change once the code is available
@@ -172,6 +178,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.logInButton.setText('Log Out')
             self.logInButton.disconnect()
             self.logInButton.triggered.connect(self.logout)
+            
         else:
             self.changeIcon('logged_out')
             self.logInButton.setText('Log In')
@@ -184,6 +191,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def present_login_form(self):
         self.login_form = LoginForm(self)
         self.login_form.show()
+        
         
     
     def present_timestamp_form(self):
