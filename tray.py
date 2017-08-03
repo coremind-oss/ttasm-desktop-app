@@ -1,21 +1,33 @@
 from http.cookies import SimpleCookie
 import json
 import sys, os, requests, uuid
-from threading import Thread
 from time import sleep
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
+from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QSystemTrayIcon
 
+from events.keyboard import KeyboardEvents
 from login import LoginForm
 from settings import HTTP_PROTOCOL
 from settings import SERVER_URL
 from timestamp.form import TimestampForm
-from events.keyboard import KeyboardEvents
+
+
+class Communicate(QtCore.QObject):
+    myGUI_signal = QtCore.pyqtSignal()
+
+class Signal():
+    def __init__(self, callbackFunc):
+        self.mySrc = Communicate()
+        self.mySrc.myGUI_signal.connect(callbackFunc)
+        
+    def send(self):
+        self.mySrc.myGUI_signal.emit()
 
 class SystemTrayIcon(QSystemTrayIcon):
 
@@ -53,12 +65,17 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.create_ui()
         self.msgButton.setEnabled(False)
         
-        self.keyboard_listener = KeyboardEvents()
+        
+        f12_signal = Signal(self.present_timestamp_form)
+        
+        self.keyboard_listener = KeyboardEvents(
+            f12=f12_signal,
+        )
         self.keyboard_listener.start_listening()
 
     def createURL(self, path):
         return '{}{}'.format(self.base_url, path)
-    
+     
     # Find Desktop's timezone   
     def set_desktop_timezone(self):
         response = requests.get('http://freegeoip.net/json')
