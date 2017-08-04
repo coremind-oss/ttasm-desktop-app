@@ -11,16 +11,16 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_LoginWindow(object):
     def setupUi(self, LoginWindow):
         LoginWindow.setObjectName("LoginWindow")
-        LoginWindow.resize(567, 368)
+        LoginWindow.resize(422, 271)
         LoginWindow.setStyleSheet("#LoginWindow{\n"
 "background-color: rgb(179, 246, 179);\n"
 "}")
         self.centralWidget = QtWidgets.QWidget(LoginWindow)
         self.centralWidget.setObjectName("centralWidget")
-        self.widget = QtWidgets.QWidget(self.centralWidget)
-        self.widget.setGeometry(QtCore.QRect(30, 27, 336, 111))
-        self.widget.setObjectName("widget")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.widget)
+        self.layoutWidget = QtWidgets.QWidget(self.centralWidget)
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 10, 401, 111))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.layoutWidget)
         self.verticalLayout_3.setContentsMargins(11, 11, 11, 11)
         self.verticalLayout_3.setSpacing(6)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
@@ -28,7 +28,7 @@ class Ui_LoginWindow(object):
         self.horizontalLayout_4.setContentsMargins(11, 11, 11, 11)
         self.horizontalLayout_4.setSpacing(6)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.email = QtWidgets.QLabel(self.widget)
+        self.email = QtWidgets.QLabel(self.layoutWidget)
         self.email.setStyleSheet("#email{\n"
 "font-family: \"Monospace\";\n"
 "font-weight:bold;\n"
@@ -36,9 +36,9 @@ class Ui_LoginWindow(object):
 "}")
         self.email.setObjectName("email")
         self.horizontalLayout_4.addWidget(self.email)
-        spacerItem = QtWidgets.QSpacerItem(18, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(60, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem)
-        self.lineEdit_2 = QtWidgets.QLineEdit(self.widget)
+        self.lineEdit_2 = QtWidgets.QLineEdit(self.layoutWidget)
         self.lineEdit_2.setObjectName("lineEdit_2")
         self.horizontalLayout_4.addWidget(self.lineEdit_2)
         self.verticalLayout_3.addLayout(self.horizontalLayout_4)
@@ -46,7 +46,7 @@ class Ui_LoginWindow(object):
         self.horizontalLayout_3.setContentsMargins(11, 11, 11, 11)
         self.horizontalLayout_3.setSpacing(6)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.password = QtWidgets.QLabel(self.widget)
+        self.password = QtWidgets.QLabel(self.layoutWidget)
         self.password.setStyleSheet("#password{\n"
 "font-family: \"Monospace\";\n"
 "font-weight:bold;\n"
@@ -54,14 +54,16 @@ class Ui_LoginWindow(object):
 "}")
         self.password.setObjectName("password")
         self.horizontalLayout_3.addWidget(self.password)
-        self.lineEdit = QtWidgets.QLineEdit(self.widget)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem1)
+        self.lineEdit = QtWidgets.QLineEdit(self.layoutWidget)
         self.lineEdit.setObjectName("lineEdit")
         self.horizontalLayout_3.addWidget(self.lineEdit)
         self.verticalLayout_3.addLayout(self.horizontalLayout_3)
-        self.widget1 = QtWidgets.QWidget(self.centralWidget)
-        self.widget1.setGeometry(QtCore.QRect(30, 150, 401, 139))
-        self.widget1.setObjectName("widget1")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.widget1)
+        self.layoutWidget1 = QtWidgets.QWidget(self.centralWidget)
+        self.layoutWidget1.setGeometry(QtCore.QRect(10, 120, 401, 139))
+        self.layoutWidget1.setObjectName("layoutWidget1")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.layoutWidget1)
         self.verticalLayout_2.setContentsMargins(11, 11, 11, 11)
         self.verticalLayout_2.setSpacing(6)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -69,12 +71,11 @@ class Ui_LoginWindow(object):
         self.horizontalLayout_2.setContentsMargins(11, 11, 11, 11)
         self.horizontalLayout_2.setSpacing(6)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem1)
-        self.submit = QtWidgets.QPushButton(self.widget1)
+        self.submit = QtWidgets.QPushButton(self.layoutWidget1)
         self.submit.setStyleSheet("#submit {\n"
 "    background-color:rgb(0, 191, 25);\n"
-"    border-radius:5px;\n"
+"    border-bottom-right-radius:30px;\n"
+"    border-top-left-radius:30px;\n"
 "    border:3px solid white;\n"
 "    color:white;\n"
 "    font-family:Monospace;\n"
@@ -82,6 +83,8 @@ class Ui_LoginWindow(object):
 "    font-weight:bold;\n"
 "    padding:12px 44px;\n"
 "    text-decoration:none;\n"
+"    width:60px;\n"
+"    height:20px;\n"
 "    }\n"
 "#submit:hover {\n"
 "    background-color:white;\n"
@@ -94,13 +97,12 @@ class Ui_LoginWindow(object):
 "}")
         self.submit.setObjectName("submit")
         self.horizontalLayout_2.addWidget(self.submit)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem2)
-        self.cancel = QtWidgets.QPushButton(self.widget1)
+        self.cancel = QtWidgets.QPushButton(self.layoutWidget1)
         self.cancel.setEnabled(True)
         self.cancel.setStyleSheet("#cancel {\n"
 "    background-color:rgb(0, 191, 25);\n"
-"    border-radius:5px;\n"
+"    border-bottom-right-radius:30px;\n"
+"    border-top-left-radius:30px;\n"
 "    border:3px solid white;\n"
 "    color:white;\n"
 "    font-family:Monospace;\n"
@@ -108,6 +110,8 @@ class Ui_LoginWindow(object):
 "    font-weight:bold;\n"
 "    padding:12px 44px;\n"
 "    text-decoration:none;\n"
+"    width:60px;\n"
+"    height:20px;\n"
 "    }\n"
 "#cancel:hover {\n"
 "    background-color:white;\n"
@@ -120,24 +124,10 @@ class Ui_LoginWindow(object):
 "}")
         self.cancel.setObjectName("cancel")
         self.horizontalLayout_2.addWidget(self.cancel)
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem3)
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
-        self.lineEdit.raise_()
-        self.lineEdit_2.raise_()
-        self.password.raise_()
-        self.lineEdit.raise_()
-        self.email.raise_()
-        self.lineEdit_2.raise_()
-        self.lineEdit.raise_()
+        self.layoutWidget.raise_()
+        self.layoutWidget.raise_()
         LoginWindow.setCentralWidget(self.centralWidget)
-        self.menuBar = QtWidgets.QMenuBar(LoginWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 567, 22))
-        self.menuBar.setObjectName("menuBar")
-        LoginWindow.setMenuBar(self.menuBar)
-        self.mainToolBar = QtWidgets.QToolBar(LoginWindow)
-        self.mainToolBar.setObjectName("mainToolBar")
-        LoginWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.mainToolBar)
         self.statusBar = QtWidgets.QStatusBar(LoginWindow)
         self.statusBar.setObjectName("statusBar")
         LoginWindow.setStatusBar(self.statusBar)
