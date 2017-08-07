@@ -7,14 +7,29 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.Qt import QCursor
+
 
 class Ui_LoginWindow(object):
+    
+    def mousePressEvent(self, QMouseEvent):
+        print(QMouseEvent.pos())
+
+    def mouseReleaseEvent(self, QMouseEvent):
+        cursor =QtGui.QCursor()
+        print(cursor.pos())
+
     def setupUi(self, LoginWindow):
+        
+        
         LoginWindow.setObjectName("LoginWindow")
         LoginWindow.resize(422, 271)
         LoginWindow.setStyleSheet("#LoginWindow{\n"
 "background-color: rgb(179, 246, 179);\n"
-"}")
+"}")    
+        LoginWindow.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        
         self.centralWidget = QtWidgets.QWidget(LoginWindow)
         self.centralWidget.setObjectName("centralWidget")
         self.layoutWidget = QtWidgets.QWidget(self.centralWidget)
@@ -144,10 +159,40 @@ class Ui_LoginWindow(object):
         self.cancel.setText(_translate("LoginWindow", "Cancel"))
 
 
+
+class CustomWindow(QtWidgets.QMainWindow):
+
+    lastX = None
+    lastY = None
+    draggable = False
+    
+    def keyPressEvent(self, e):
+        print(e)
+        
+    def mousePressEvent(self, e):
+        self.draggable = True
+    
+    def mouseMoveEvent(self, e):
+        if self.draggable:
+            if not self.lastX: self.lastX = e.x()
+            if not self.lastY: self.lastY = e.y()
+            
+            p = QCursor.pos()
+            g = self.geometry()
+            g.moveTo(p.x()-self.lastX, p.y()-self.lastY)
+            self.setGeometry(g)
+    
+    def mouseReleaseEvent(self, e):
+        if self.lastX: self.lastX = None
+        if self.lastY: self.lastY = None
+        self.draggable = False
+    
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    LoginWindow = QtWidgets.QMainWindow()
+    LoginWindow = CustomWindow()
+    
     ui = Ui_LoginWindow()
     ui.setupUi(LoginWindow)
     LoginWindow.show()
