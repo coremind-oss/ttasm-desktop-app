@@ -112,16 +112,17 @@ class LoginForm(QWidget):
         # Disable resize
         self.setFixedSize(self.fixedWidth, self.fixedHeight)
 
-    def move_to_primary_center(self):
+    def move_to_primary_center(self, geometry=None):
         """Reposition window to center of primary screen"""
 
         desktop = QDesktopWidget()
         primaryScreenIndex = desktop.primaryScreen()
-        rectScreenPrimarty = desktop.screenGeometry(primaryScreenIndex)
+        rectScreenPrimary = desktop.screenGeometry(primaryScreenIndex)
 
         # center in the middle of screen, considering window's own size
-        self.move(rectScreenPrimarty.center().x() - self.fixedWidth/2,
-                  rectScreenPrimarty.center().y() - self.fixedHeight/2)
+        
+        self.move(rectScreenPrimary.center().x() - self.fixedWidth/2,
+                  rectScreenPrimary.center().y() - self.fixedHeight/2)
 
 
     def submit(self, parentTray, email, password):
